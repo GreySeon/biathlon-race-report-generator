@@ -1,0 +1,50 @@
+[
+  {
+    "number": "1",
+    "flag": "🇸🇪",
+    "country": "Швеція",
+    "stadium": "Ідре-Ф'єль"
+  },
+  {
+    "number": "2",
+    "flag": "🇳🇴",
+    "country": "Норвегія",
+    "stadium": "Шушеєн"
+  },
+  {
+    "number": "3",
+    "flag": "🇦🇹",
+    "country": "Австрія",
+    "stadium": "Обертилліах"
+  },
+  {
+    "number": "4",
+    "flag": "🇩🇪",
+    "country": "Німеччина",
+    "stadium": "Арбер"
+  },
+  {
+    "number": "5",
+    "flag": "🇨🇭",
+    "country": "Швейцарія",
+    "stadium": "Гомс"
+  },
+  {
+    "number": "6",
+    "flag": "🇸🇮",
+    "country": "Словенія",
+    "stadium": "Поклюка"
+  },
+  {
+    "number": "7",
+    "flag": "🇮🇹",
+    "country": "Італія",
+    "stadium": "Ріднаун — Валь-Ріданна"
+  },
+  {
+    "number": "8",
+    "flag": "🇮🇹",
+    "country": "Італія",
+    "stadium": "Мартелль — Валь-Мартелло"
+  }
+]

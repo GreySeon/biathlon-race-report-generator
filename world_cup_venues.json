@@ -1,42 +1,62 @@
 [
   {
-    "country": "🇫🇮",
+    "number": "1",
+    "flag": "🇫🇮",
+    "country": "Фінляндія",
     "stadium": "Контіолахті"
   },
   {
-    "country": "🇦🇹",
+    "number": "2",
+    "flag": "🇦🇹",
+    "country": "Австрія",
     "stadium": "Гохфільцен"
   },
   {
-    "country": "🇫🇷",
+    "number": "3",
+    "flag": "🇫🇷",
+    "country": "Франція",
     "stadium": "Ансі — Ле-Гран-Борнан"
   },
   {
-    "country": "🇸🇮",
+    "number": "4",
+    "flag": "🇸🇮",
+    "country": "Словенія",
     "stadium": "Поклюка"
   },
   {
-    "country": "🇩🇪",
+    "number": "5",
+    "flag": "🇩🇪",
+    "country": "Німеччина",
     "stadium": "Рупольдинг"
   },
   {
-    "country": "🇮🇹",
+    "number": "6",
+    "flag": "🇮🇹",
+    "country": "Італія",
     "stadium": "Антгольц — Антерсельва"
   },
   {
-    "country": "🇨🇿",
+    "number": "7",
+    "flag": "🇨🇿",
+    "country": "Чехія",
     "stadium": "Нове-Мєсто-на-Мораві"
   },
   {
-    "country": "🇩🇪",
+    "number": "8",
+    "flag": "🇩🇪",
+    "country": "Німеччина",
     "stadium": "Обергоф"
   },
   {
-    "country": "🇸🇪",
+    "number": "9",
+    "flag": "🇸🇪",
+    "country": "Швеція",
     "stadium": "Естерсунд"
   },
   {
-    "country": "🇳🇴",
+    "number": "10",
+    "flag": "🇳🇴",
+    "country": "Норвегія",
     "stadium": "Осло — Голменколлен"
   }
 ]
