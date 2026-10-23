@@ -3,12 +3,47 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width">
+        <link rel="icon" href="/icon.jpg" type="image/x-icon" />
         <title>Biathlon Race Report Generator</title>
+        <meta
+            name="description"
+            content="A simple web-based biathlon results formatter 
+            with customizable race templates and athlete selection." />
+        <link rel="stylesheet" href="style.css" />
+        <script src="script.js" defer></script>
     </head>
     <body>
-        <select id="competition" name="Змагання">
-            <option>Кубок Світу</option>
-            <option>Кубок IBU</option>
-        </select>
+        <main>
+            <form action="./submit_page" method="get">
+                <p>
+                    <label for="competition">Змагання:</label>
+                    <select name="competition" id="competition">
+                        <option value="empty"></option>
+                        <option value="world_cup">Кубок Світу</option>
+                        <option value="ibu_cup">Кубок IBU</option>
+                    </select>
+                </p>
+                <p>
+                    <label for="venue">Етап:</label>
+                    <select name="venue" id="venue">
+                        <option value="empty"></option>
+                    </select>
+                </p>
+                <p>
+                    <label for="gender">Гендер:</label>
+                    <select name="gender" id="gender">
+                        <option value="empty"></option>
+                        <option value="men">Чоловіки</option>
+                        <option value="women">Жінки</option>
+                    </select>
+                </p>
+                <p>
+                    <textarea></textarea>
+                </p>
+                <p>
+                    <button id="generate">Згенерувати текст</button>
+                </p>
+            </form>
+        </main>
     </body>
 </html>
