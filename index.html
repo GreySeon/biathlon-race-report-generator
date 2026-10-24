@@ -14,36 +14,34 @@
     </head>
     <body>
         <main>
-            <form action="./submit_page" method="get">
-                <p>
-                    <label for="competition">Змагання:</label>
-                    <select name="competition" id="competition">
-                        <option value="empty"></option>
-                        <option value="world_cup">Кубок Світу</option>
-                        <option value="ibu_cup">Кубок IBU</option>
-                    </select>
-                </p>
-                <p>
-                    <label for="venue">Етап:</label>
-                    <select name="venue" id="venue">
-                        <option value="empty"></option>
-                    </select>
-                </p>
-                <p>
-                    <label for="gender">Гендер:</label>
-                    <select name="gender" id="gender">
-                        <option value="empty"></option>
-                        <option value="men">Чоловіки</option>
-                        <option value="women">Жінки</option>
-                    </select>
-                </p>
-                <p>
-                    <textarea></textarea>
-                </p>
-                <p>
-                    <button id="generate">Згенерувати текст</button>
-                </p>
-            </form>
+            <p>
+                <label for="competition">Змагання:</label>
+                <select name="competition" id="competition">
+                    <option value="empty"></option>
+                    <option value="world_cup">Кубок Світу</option>
+                    <option value="ibu_cup">Кубок IBU</option>
+                </select>
+            </p>
+            <p>
+                <label for="venue">Етап:</label>
+                <select name="venue" id="venue">
+
+                </select>
+            </p>
+            <p>
+                <label for="gender">Гендер:</label>
+                <select name="gender" id="gender">
+                    <option value="empty"></option>
+                    <option value="men">Чоловіки</option>
+                    <option value="women">Жінки</option>
+                </select>
+            </p>
+            <p>
+                <textarea id="output" readonly></textarea>
+            </p>
+            <p>
+                <button id="generate">Згенерувати текст</button>
+            </p>
         </main>
     </body>
 </html>
