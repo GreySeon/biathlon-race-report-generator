@@ -24,9 +24,7 @@
             </p>
             <p>
                 <label for="venue">Етап:</label>
-                <select name="venue" id="venue">
-
-                </select>
+                <select name="venue" id="venue"></select>
             </p>
             <p>
                 <label for="gender">Гендер:</label>
@@ -34,6 +32,27 @@
                     <option value="empty"></option>
                     <option value="men">Чоловіки</option>
                     <option value="women">Жінки</option>
+                </select>
+            </p>
+            <p>
+                <label for="race">Гонка:</label>
+                <select name="race" id="race">
+                    <option value="empty"></option>
+                    <optgroup label="Особисті гонки">
+                        <option value="individual">Індивідуальна</option>
+                        <option value="sprint">Спринт</option>
+                        <option value="pursuit">Переслідування</option>
+                        <option value="masstart">Масстарт</option>
+                    </optgroup>
+                    <optgroup label="Естафети">
+                        <option value="classic">Класична</option>
+                        <option value="mixed">Змішана</option>
+                        <option value="single">Одиночна</option>
+                    </optgroup>
+                    <optgroup label="Додаткові гонки">
+                        <option value="short">Коротка Індивідуальна</option>
+                        <option value="masstart60">Масстарт-60</option>
+                    </optgroup>
                 </select>
             </p>
             <p>

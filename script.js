@@ -1,6 +1,8 @@
 const competition = document.getElementById("competition");
 const venue = document.getElementById("venue");
 let populatedVenues = [];
+const gender = document.getElementById("gender");
+const race = document.getElementById("race");
 const button = document.getElementById("generate");
 
 async function populateVenues() {
@@ -41,13 +43,85 @@ async function populateVenues() {
 }
 
 function generateText() {
-  const competitionText = competition.options[competition.selectedIndex].text;
+  const selectedCompetition = competition.options[competition.selectedIndex].text;
   const selectedVenue = populatedVenues.find(
     item => String(item.number) === venue.value
   );
+  const selectedGender = gender.options[gender.selectedIndex].text;
+  let modifiedGender = "";
+  const selectedRace = race.options[race.selectedIndex].text;
+  let modifiedRace = "";
+
+  // Різні відмінювання слова
+  if (
+    gender.value == "men" &&
+    (race.value == "sprint" ||
+      race.value == "masstart" ||
+      race.value == "masstart60")
+  ) {
+    modifiedGender = "чоловічого";
+  } else if (
+    gender.value == "men" &&
+    (race.value == "pursuit" ||
+      race.value == "individual" ||
+      race.value == "short" ||
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single")
+  ) {
+    modifiedGender = "чоловічої";
+  } else if (
+    gender.value == "women" &&
+    (race.value == "sprint" ||
+      race.value == "masstart" ||
+      race.value == "masstart60")
+  ) {
+    modifiedGender = "жіночого";
+  } else if (
+    gender.value == "women" &&
+    (race.value == "pursuit" ||
+      race.value == "individual" ||
+      race.value == "short" ||
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single")
+  ) {
+    modifiedGender = "жіночої";
+  }
+
+  switch (race.value) {
+    case "sprint":
+      modifiedRace = "спринту";
+      break;
+    case "pursuit":
+      modifiedRace = "гонки переслідування";
+      break;
+    case "individual":
+      modifiedRace = "індивідуальної гонки";
+      break;
+    case "short":
+      modifiedRace = "короткої індивідуальної гонки";
+      break;
+    case "masstart":
+      modifiedRace = "масстарту";
+      break;
+    case "masstart60":
+      modifiedRace = "масстарту-60";
+      break;
+    case "classic":
+      modifiedRace = "класичної естафети";
+      break;
+    case "mixed":
+      modifiedRace = "змішаної естафети";
+      break;
+    case "single":
+      modifiedRace = "одиночної змішаної естафети";
+      break;
+  }
+
   output.value =
     "🏆 " +
-    competitionText +
+    selectedCompetition +
     ", " +
     selectedVenue.number +
     "-й етап 🏆\n" +
@@ -57,7 +131,11 @@ function generateText() {
     ", " +
     selectedVenue.country +
     " " +
-    selectedVenue.flag;
+    selectedVenue.flag +
+    "\nРезультати " +
+    modifiedGender +
+    " " +
+    modifiedRace;
 }
 
 competition.addEventListener("change", populateVenues);
