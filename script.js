@@ -3,6 +3,37 @@ const venue = document.getElementById("venue");
 let populatedVenues = [];
 const gender = document.getElementById("gender");
 const race = document.getElementById("race");
+/*const firstPlace = {
+  name: document.getElementById("biathletes1"),
+  shooting: [
+    document.getElementById("1stshooting1"),
+    document.getElementById("2ndshooting1"),
+    document.getElementById("3rdshooting1"),
+    document.getElementById("4thshooting1"),
+  ],
+};*/
+
+const biathletes = [
+  {
+    name: document.getElementById("biathletes1"),
+    shooting: [
+      document.getElementById("1stshooting1"),
+      document.getElementById("2ndshooting1"),
+      document.getElementById("3rdshooting1"),
+      document.getElementById("4thshooting1"),
+    ],
+  },
+  {
+    name: document.getElementById("biathletes2"),
+    shooting: [
+      document.getElementById("1stshooting2"),
+      document.getElementById("2ndshooting2"),
+      document.getElementById("3rdshooting2"),
+      document.getElementById("4thshooting2"),
+    ],
+  }
+];
+
 const button = document.getElementById("generate");
 
 async function populateVenues() {
@@ -26,7 +57,7 @@ async function populateVenues() {
       }
       break;
     case "ibu_cup":
-      populatedVenues = worldCupVenues;
+      populatedVenues = ibuCupVenues;
       for (let i = 0; i < ibuCupVenues.length; i++) {
         const option = new Option(
           ibuCupVenues[i].number +
@@ -39,6 +70,47 @@ async function populateVenues() {
         document.getElementById("venue").add(option);
       }
       break;
+  }
+}
+
+function disableShooting() {
+  for (i = 0; i < biathletes.length; i++) {
+    if (race.value == "sprint") {
+      biathletes[i].shooting[2].disabled = true;
+      biathletes[i].shooting[3].disabled = true;
+    } else {
+      biathletes[i].shooting[2].disabled = false;
+      biathletes[i].shooting[3].disabled = false;
+    }
+  }
+}
+
+async function populateBiathletes() {
+  for (i = 0; i < biathletes.length; i++) {
+    biathletes[i].name.replaceChildren(); // Clear previous options
+    const men = await fetch("JSON/men_biathletes.json").then((response) =>
+      response.json(),
+    );
+    const women = await fetch("JSON/women_biathletes.json").then((response) =>
+      response.json(),
+    );
+
+    switch (gender.value) {
+      case "men":
+        for (let j = 0; j < men.length; j++) {
+          const option = new Option(men[j].flag + " " + men[j].name);
+          biathletes[i].name.append(option);
+        }
+        break;
+      case "women":
+        for (let j = 0; j < women.length; j++) {
+          const option = document.createElement("option");
+          option.value = women[j].name; // це значення потрапить у поле вводу
+          option.label = women[j].flag; // прапор у підказці
+          biathletes[i].name.append(option);
+        }
+        break;
+    }
   }
 }
 
@@ -139,4 +211,17 @@ function generateText() {
 }
 
 competition.addEventListener("change", populateVenues);
+gender.addEventListener("change", populateBiathletes);
+race.addEventListener("change", disableShooting);
+
+for (i = 0; i < biathletes.length; i++) {
+  for (j = 0; j < biathletes[i].shooting.length; j++) {
+    biathletes[i].shooting[j].addEventListener("input", (event) => {
+      event.currentTarget.value = event.currentTarget.value
+        .replace(/[^0-5]/g, "")
+        .slice(0, 1);
+    });
+  }
+}
+
 button.addEventListener("click", generateText);
