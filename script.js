@@ -7,8 +7,8 @@ const button = document.getElementById("generate");
 
 async function populateVenues() {
   venue.replaceChildren(); // Clear previous options
-  const worldCupVenues = await fetch("world_cup_venues.json").then(response => response.json());
-  const ibuCupVenues = await fetch("ibu_cup_venues.json").then(response => response.json());
+  const worldCupVenues = await fetch("JSON/world_cup_venues.json").then(response => response.json());
+  const ibuCupVenues = await fetch("JSON/ibu_cup_venues.json").then(response => response.json());
 
   switch (competition.value) {
     case "world_cup":
