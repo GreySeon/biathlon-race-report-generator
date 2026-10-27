@@ -3,16 +3,6 @@ const venue = document.getElementById("venue");
 let populatedVenues = [];
 const gender = document.getElementById("gender");
 const race = document.getElementById("race");
-/*const firstPlace = {
-  name: document.getElementById("biathletes1"),
-  shooting: [
-    document.getElementById("1stshooting1"),
-    document.getElementById("2ndshooting1"),
-    document.getElementById("3rdshooting1"),
-    document.getElementById("4thshooting1"),
-  ],
-};*/
-
 const biathletes = [
   {
     name: document.getElementById("biathletes1"),
@@ -21,6 +11,11 @@ const biathletes = [
       document.getElementById("2ndshooting1"),
       document.getElementById("3rdshooting1"),
       document.getElementById("4thshooting1"),
+    ],
+    time: [
+      document.getElementById("winningmins"),
+      document.getElementById("winningsecs"),
+      document.getElementById("winningmils"),
     ],
   },
   {
@@ -31,7 +26,68 @@ const biathletes = [
       document.getElementById("3rdshooting2"),
       document.getElementById("4thshooting2"),
     ],
-  }
+    time: [
+      document.getElementById("minsbehind2"),
+      document.getElementById("secsbehind2"),
+      document.getElementById("milsbehind2"),
+    ],
+  },
+  {
+    name: document.getElementById("biathletes3"),
+    shooting: [
+      document.getElementById("1stshooting3"),
+      document.getElementById("2ndshooting3"),
+      document.getElementById("3rdshooting3"),
+      document.getElementById("4thshooting3"),
+    ],
+    time: [
+      document.getElementById("minsbehind3"),
+      document.getElementById("secsbehind3"),
+      document.getElementById("milsbehind3"),
+    ],
+  },
+  {
+    name: document.getElementById("biathletes4"),
+    shooting: [
+      document.getElementById("1stshooting4"),
+      document.getElementById("2ndshooting4"),
+      document.getElementById("3rdshooting4"),
+      document.getElementById("4thshooting4"),
+    ],
+    time: [
+      document.getElementById("minsbehind4"),
+      document.getElementById("secsbehind4"),
+      document.getElementById("milsbehind4"),
+    ],
+  },
+  {
+    name: document.getElementById("biathletes5"),
+    shooting: [
+      document.getElementById("1stshooting5"),
+      document.getElementById("2ndshooting5"),
+      document.getElementById("3rdshooting5"),
+      document.getElementById("4thshooting5"),
+    ],
+    time: [
+      document.getElementById("minsbehind5"),
+      document.getElementById("secsbehind5"),
+      document.getElementById("milsbehind5"),
+    ],
+  },
+  {
+    name: document.getElementById("biathletes6"),
+    shooting: [
+      document.getElementById("1stshooting6"),
+      document.getElementById("2ndshooting6"),
+      document.getElementById("3rdshooting6"),
+      document.getElementById("4thshooting6"),
+    ],
+    time: [
+      document.getElementById("minsbehind6"),
+      document.getElementById("secsbehind6"),
+      document.getElementById("milsbehind6"),
+    ],
+  },
 ];
 
 const button = document.getElementById("generate");
@@ -75,7 +131,9 @@ async function populateVenues() {
 
 function disableShooting() {
   for (i = 0; i < biathletes.length; i++) {
-    if (race.value == "sprint") {
+    if (
+      race.value == "sprint"
+    ) {
       biathletes[i].shooting[2].disabled = true;
       biathletes[i].shooting[3].disabled = true;
     } else {
@@ -214,12 +272,29 @@ competition.addEventListener("change", populateVenues);
 gender.addEventListener("change", populateBiathletes);
 race.addEventListener("change", disableShooting);
 
+// For shooting
 for (i = 0; i < biathletes.length; i++) {
   for (j = 0; j < biathletes[i].shooting.length; j++) {
     biathletes[i].shooting[j].addEventListener("input", (event) => {
       event.currentTarget.value = event.currentTarget.value
         .replace(/[^0-5]/g, "")
         .slice(0, 1);
+    });
+  }
+}
+
+// For times
+for (i = 0; i < biathletes.length; i++) {
+  for (j = 0; j < biathletes[i].time.length; j++) {
+    biathletes[i].time[j].addEventListener("input", (event) => {
+      const input = event.currentTarget;
+      let value = input.value.replace(/\D/g, "").slice(0, 2);
+
+      if (Number(value) > 59) {
+        value = value.slice(0, 1);
+      }
+
+      input.value = value;
     });
   }
 }
