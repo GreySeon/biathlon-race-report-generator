@@ -5,7 +5,8 @@ const gender = document.getElementById("gender");
 const race = document.getElementById("race");
 const biathletes = [
   {
-    name: document.getElementById("biathletes1"),
+    name: document.getElementById("1stplace"),
+    list: document.getElementById("biathletes1"),
     shooting: [
       document.getElementById("1stshooting1"),
       document.getElementById("2ndshooting1"),
@@ -19,7 +20,8 @@ const biathletes = [
     ],
   },
   {
-    name: document.getElementById("biathletes2"),
+    name: document.getElementById("2ndplace"),
+    list: document.getElementById("biathletes2"),
     shooting: [
       document.getElementById("1stshooting2"),
       document.getElementById("2ndshooting2"),
@@ -33,7 +35,8 @@ const biathletes = [
     ],
   },
   {
-    name: document.getElementById("biathletes3"),
+    name: document.getElementById("3rdplace"),
+    list: document.getElementById("biathletes3"),
     shooting: [
       document.getElementById("1stshooting3"),
       document.getElementById("2ndshooting3"),
@@ -47,7 +50,8 @@ const biathletes = [
     ],
   },
   {
-    name: document.getElementById("biathletes4"),
+    name: document.getElementById("4thplace"),
+    list: document.getElementById("biathletes4"),
     shooting: [
       document.getElementById("1stshooting4"),
       document.getElementById("2ndshooting4"),
@@ -61,7 +65,8 @@ const biathletes = [
     ],
   },
   {
-    name: document.getElementById("biathletes5"),
+    name: document.getElementById("5thplace"),
+    list: document.getElementById("biathletes5"),
     shooting: [
       document.getElementById("1stshooting5"),
       document.getElementById("2ndshooting5"),
@@ -75,7 +80,8 @@ const biathletes = [
     ],
   },
   {
-    name: document.getElementById("biathletes6"),
+    name: document.getElementById("6thplace"),
+    list: document.getElementById("biathletes6"),
     shooting: [
       document.getElementById("1stshooting6"),
       document.getElementById("2ndshooting6"),
@@ -89,7 +95,7 @@ const biathletes = [
     ],
   },
 ];
-
+let populatedBiathletes = [];
 const button = document.getElementById("generate");
 
 async function populateVenues() {
@@ -130,7 +136,7 @@ async function populateVenues() {
 }
 
 function disableShooting() {
-  for (i = 0; i < biathletes.length; i++) {
+  for (let i = 0; i < biathletes.length; i++) {
     if (
       race.value == "sprint"
     ) {
@@ -144,8 +150,8 @@ function disableShooting() {
 }
 
 async function populateBiathletes() {
-  for (i = 0; i < biathletes.length; i++) {
-    biathletes[i].name.replaceChildren(); // Clear previous options
+  for (let i = 0; i < biathletes.length; i++) {
+    biathletes[i].list.replaceChildren(); // Clear previous options
     const men = await fetch("JSON/men_biathletes.json").then((response) =>
       response.json(),
     );
@@ -155,21 +161,50 @@ async function populateBiathletes() {
 
     switch (gender.value) {
       case "men":
+        populatedBiathletes = men;
         for (let j = 0; j < men.length; j++) {
-          const option = new Option(men[j].flag + " " + men[j].name);
-          biathletes[i].name.append(option);
+          const option = document.createElement("option");
+          option.value = men[j].name;
+          option.label = men[j].flag;
+          biathletes[i].list.append(option);
         }
         break;
       case "women":
+        populatedBiathletes = women;
         for (let j = 0; j < women.length; j++) {
           const option = document.createElement("option");
           option.value = women[j].name; // це значення потрапить у поле вводу
           option.label = women[j].flag; // прапор у підказці
-          biathletes[i].name.append(option);
+          biathletes[i].list.append(option);
         }
         break;
     }
   }
+}
+
+function formatTime(biathlete) {
+  const [minutes, seconds, tenths] = biathlete.time.map(
+    (input) => input.value || "0",
+  );
+
+  const minuteValue = Number(minutes);
+  const minutePart = minuteValue === 0 ? "" : `${minuteValue}`;
+  const secondsValue = Number(seconds);
+  const secondsPart = secondsValue === 0 ? "" : `${secondsValue}`;
+
+  if (minuteValue === 0 && secondsValue === 0 && Number(tenths) === 0) {
+    return "0.0";
+  }
+
+  if (minuteValue === 0) {
+    if (secondsValue <= 9) {
+      return `${secondsPart}.${tenths}`;
+    }
+
+    return `${secondsPart.padStart(2, "0")}.${tenths}`;
+  }
+
+  return `${minutePart}:${secondsPart.padStart(2, "0")}.${tenths}`;
 }
 
 function generateText() {
@@ -181,6 +216,23 @@ function generateText() {
   let modifiedGender = "";
   const selectedRace = race.options[race.selectedIndex].text;
   let modifiedRace = "";
+
+  const selectedTop = [];
+  for (let i = 0; i < 6; i++) {
+      selectedTop[i] = populatedBiathletes.find(
+        (athlete) => athlete.name === biathletes[i].name.value,
+      );
+  }
+
+  const shootings = [];
+  for (let i = 0; i < 6; i++) {
+    shootings[i] = biathletes[i].shooting.map((input) => input.value).join("+");
+  }
+
+  const times = [];
+  for (let i = 0; i < 6; i++) {
+    times[i] = formatTime(biathletes[i]);
+  }
 
   // Різні відмінювання слова
   if (
@@ -250,22 +302,15 @@ function generateText() {
   }
 
   output.value =
-    "🏆 " +
-    selectedCompetition +
-    ", " +
-    selectedVenue.number +
-    "-й етап 🏆\n" +
-    selectedVenue.flag +
-    " " +
-    selectedVenue.stadium +
-    ", " +
-    selectedVenue.country +
-    " " +
-    selectedVenue.flag +
-    "\nРезультати " +
-    modifiedGender +
-    " " +
-    modifiedRace;
+    "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
+    selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
+    "\nРезультати " + modifiedGender + " " + modifiedRace +
+    "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].name + " (" + shootings[0] + ") " + times[0] +
+    "\n2. " + selectedTop[1].flag + " " + selectedTop[1].name + " (" + shootings[1] + ") +" + times[1] +
+    "\n3. " + selectedTop[2].flag + " " + selectedTop[2].name + " (" + shootings[2] + ") +" + times[2] +
+    "\n4. " + selectedTop[3].flag + " " + selectedTop[3].name + " (" + shootings[3] + ") +" + times[3] +
+    "\n5. " + selectedTop[4].flag + " " + selectedTop[4].name + " (" + shootings[4] + ") +" + times[4] +
+    "\n6. " + selectedTop[5].flag + " " + selectedTop[5].name + " (" + shootings[5] + ") +" + times[5];
 }
 
 competition.addEventListener("change", populateVenues);
@@ -273,8 +318,8 @@ gender.addEventListener("change", populateBiathletes);
 race.addEventListener("change", disableShooting);
 
 // For shooting
-for (i = 0; i < biathletes.length; i++) {
-  for (j = 0; j < biathletes[i].shooting.length; j++) {
+for (let i = 0; i < biathletes.length; i++) {
+  for (let j = 0; j < biathletes[i].shooting.length; j++) {
     biathletes[i].shooting[j].addEventListener("input", (event) => {
       event.currentTarget.value = event.currentTarget.value
         .replace(/[^0-5]/g, "")
@@ -284,8 +329,8 @@ for (i = 0; i < biathletes.length; i++) {
 }
 
 // For times
-for (i = 0; i < biathletes.length; i++) {
-  for (j = 0; j < biathletes[i].time.length; j++) {
+for (let i = 0; i < biathletes.length; i++) {
+  for (let j = 0; j < biathletes[i].time.length; j++) {
     biathletes[i].time[j].addEventListener("input", (event) => {
       const input = event.currentTarget;
       let value = input.value.replace(/\D/g, "").slice(0, 2);
