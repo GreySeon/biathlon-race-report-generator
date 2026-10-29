@@ -152,6 +152,7 @@ function disableShooting() {
 async function populateBiathletes() {
   for (let i = 0; i < biathletes.length; i++) {
     biathletes[i].list.replaceChildren(); // Clear previous options
+    biathletes[i].name.value = "";
     const men = await fetch("JSON/men_biathletes.json").then((response) =>
       response.json(),
     );
@@ -232,6 +233,62 @@ function generateText() {
   const times = [];
   for (let i = 0; i < 6; i++) {
     times[i] = formatTime(biathletes[i]);
+  }
+
+  const errorText = document.getElementById("errorText");
+  errorText.value = "";
+
+  // Error handling
+  if (competition.value === "empty") {
+    errorText.value = "Змагання не було вибрано!";
+    output.value = "";
+    return;
+  } else if (gender.value === "empty") {
+    errorText.value = "Гендер не було вибрано!";
+    output.value = "";
+    return;
+  } else if (race.value === "empty") {
+    errorText.value = "Гонку не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[0].name.value === "") {
+    errorText.value = "Біатлоніста для 1 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[1].name.value === "") {
+    errorText.value = "Біатлоніста для 2 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[2].name.value === "") {
+    errorText.value = "Біатлоніста для 3 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[3].name.value === "") {
+    errorText.value = "Біатлоніста для 4 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[4].name.value === "") {
+    errorText.value = "Біатлоніста для 5 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (biathletes[5].name.value === "") {
+    errorText.value = "Біатлоніста для 6 місця не було вибрано!";
+    output.value = "";
+    return;
+  } else if (times[0] === "0.0") {
+    errorText.value = "Переможний час для 1 місця не було встановлено!";
+    output.value = "";
+    return;
+  }
+
+  for (let i = 0; i < biathletes.length; i++) {
+    for (let j = i + 1; j < biathletes.length; j++) {
+      if (biathletes[i].name.value == biathletes[j].name.value) {
+        errorText.value = `${i + 1} місце та ${j + 1} місце мають однакового біатлоніста!`;
+        output.value = "";
+        return;
+      }
+    }
   }
 
   // Різні відмінювання слова
