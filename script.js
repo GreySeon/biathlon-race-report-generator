@@ -96,6 +96,7 @@ const biathletes = [
   },
 ];
 let populatedBiathletes = [];
+const winningTime = document.getElementById("winningtime");
 const button = document.getElementById("generate");
 
 async function populateVenues() {
@@ -138,7 +139,10 @@ async function populateVenues() {
 function disableShooting() {
   for (let i = 0; i < biathletes.length; i++) {
     if (
-      race.value == "sprint"
+      race.value == "sprint" ||
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single"
     ) {
       biathletes[i].shooting[2].disabled = true;
       biathletes[i].shooting[3].disabled = true;
@@ -146,6 +150,14 @@ function disableShooting() {
       biathletes[i].shooting[2].disabled = false;
       biathletes[i].shooting[3].disabled = false;
     }
+  }
+}
+
+function addHours() {
+  if (race.value == "classic" || race.value == "mixed") {
+    winningTime.textContent = "Час: 1:";
+  } else {
+    winningTime.textContent = "Час:";
   }
 }
 
@@ -183,6 +195,52 @@ async function populateBiathletes() {
   }
 }
 
+function changeShootingFormat(input) {
+  let value = input.value.replace(/\D/g, "");
+
+  if (
+    race.value == "classic" ||
+    race.value == "mixed" ||
+    race.value == "single"
+  ) {
+    input.maxLength = 2;
+    value = value.slice(0, 2);
+
+    if (Number(value) > 24) {
+      value = value.slice(0, -1);
+    }
+  } else {
+    input.maxLength = 1;
+    value = value.replace(/[6-9]/g, "").slice(0, 1);
+  }
+
+  input.value = value;
+}
+
+for (const athlete of biathletes) {
+  for (const input of athlete.shooting) {
+    input.addEventListener("input", () => {
+      changeShootingFormat(input);
+    });
+  }
+}
+
+// For times
+for (let i = 0; i < biathletes.length; i++) {
+  for (let j = 0; j < biathletes[i].time.length; j++) {
+    biathletes[i].time[j].addEventListener("input", (event) => {
+      const input = event.currentTarget;
+      let value = input.value.replace(/\D/g, "").slice(0, 2);
+
+      if (Number(value) > 59) {
+        value = value.slice(0, 1);
+      }
+
+      input.value = value;
+    });
+  }
+}
+
 function formatTime(biathlete) {
   const [minutes, seconds, tenths] = biathlete.time.map(
     (input) => input.value || "0",
@@ -203,6 +261,10 @@ function formatTime(biathlete) {
     }
 
     return `${secondsPart.padStart(2, "0")}.${tenths}`;
+  }
+
+  if ((race.value == "classic" || race.value == "mixed") && biathlete == biathletes[0]) {
+    return `1:${minutePart.padStart(2, "0")}:${secondsPart.padStart(2, "0")}.${tenths}`;
   }
 
   return `${minutePart}:${secondsPart.padStart(2, "0")}.${tenths}`;
@@ -227,7 +289,19 @@ function generateText() {
 
   const shootings = [];
   for (let i = 0; i < 6; i++) {
-    shootings[i] = biathletes[i].shooting.map((input) => input.value).join("+");
+    if (
+      race.value == "sprint" ||
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single"
+    ) {
+      shootings[i] =
+        biathletes[i].shooting[0].value + "+" + biathletes[i].shooting[1].value;
+    } else {
+      shootings[i] = biathletes[i].shooting
+        .map((input) => input.value)
+        .join("+");
+    }
   }
 
   const times = [];
@@ -373,32 +447,13 @@ function generateText() {
 competition.addEventListener("change", populateVenues);
 gender.addEventListener("change", populateBiathletes);
 race.addEventListener("change", disableShooting);
-
-// For shooting
-for (let i = 0; i < biathletes.length; i++) {
-  for (let j = 0; j < biathletes[i].shooting.length; j++) {
-    biathletes[i].shooting[j].addEventListener("input", (event) => {
-      event.currentTarget.value = event.currentTarget.value
-        .replace(/[^0-5]/g, "")
-        .slice(0, 1);
-    });
+race.addEventListener("change", addHours);
+race.addEventListener("change", () => {
+  for (const athlete of biathletes) {
+    for (const input of athlete.shooting) {
+      changeShootingFormat(input);
+    }
   }
-}
-
-// For times
-for (let i = 0; i < biathletes.length; i++) {
-  for (let j = 0; j < biathletes[i].time.length; j++) {
-    biathletes[i].time[j].addEventListener("input", (event) => {
-      const input = event.currentTarget;
-      let value = input.value.replace(/\D/g, "").slice(0, 2);
-
-      if (Number(value) > 59) {
-        value = value.slice(0, 1);
-      }
-
-      input.value = value;
-    });
-  }
-}
+});
 
 button.addEventListener("click", generateText);
