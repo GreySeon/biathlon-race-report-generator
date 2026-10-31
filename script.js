@@ -2,6 +2,7 @@ const competition = document.getElementById("competition");
 const venue = document.getElementById("venue");
 let populatedVenues = [];
 const gender = document.getElementById("gender");
+let previousGender = "";
 const race = document.getElementById("race");
 const biathletes = [
   {
@@ -171,28 +172,46 @@ async function populateBiathletes() {
     const women = await fetch("JSON/women_biathletes.json").then((response) =>
       response.json(),
     );
+    const countries = await fetch("JSON/countries.json").then((response) =>
+      response.json(),
+    );
 
-    switch (gender.value) {
-      case "men":
-        populatedBiathletes = men;
-        for (let j = 0; j < men.length; j++) {
-          const option = document.createElement("option");
-          option.value = men[j].name;
-          option.label = men[j].flag;
-          biathletes[i].list.append(option);
-        }
-        break;
-      case "women":
-        populatedBiathletes = women;
-        for (let j = 0; j < women.length; j++) {
-          const option = document.createElement("option");
-          option.value = women[j].name; // це значення потрапить у поле вводу
-          option.label = women[j].flag; // прапор у підказці
-          biathletes[i].list.append(option);
-        }
-        break;
+    if (
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single"
+    ) {
+      populatedBiathletes = countries;
+      for (let j = 0; j < countries.length; j++) {
+        const option = document.createElement("option");
+        option.value = countries[j].country;
+        option.label = countries[j].flag;
+        biathletes[i].list.append(option);
+      }
+    } else {
+      switch (gender.value) {
+        case "men":
+          populatedBiathletes = men;
+          for (let j = 0; j < men.length; j++) {
+            const option = document.createElement("option");
+            option.value = men[j].name;
+            option.label = men[j].flag;
+            biathletes[i].list.append(option);
+          }
+          break;
+        case "women":
+          populatedBiathletes = women;
+          for (let j = 0; j < women.length; j++) {
+            const option = document.createElement("option");
+            option.value = women[j].name; // це значення потрапить у поле вводу
+            option.label = women[j].flag; // прапор у підказці
+            biathletes[i].list.append(option);
+          }
+          break;
+      }
     }
   }
+  previousGender = gender.value;
 }
 
 function changeShootingFormat(input) {
@@ -282,9 +301,19 @@ function generateText() {
 
   const selectedTop = [];
   for (let i = 0; i < 6; i++) {
+    if (
+      race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single"
+    ) {
+      selectedTop[i] = populatedBiathletes.find(
+        (team) => team.country === biathletes[i].name.value,
+      );
+    } else {
       selectedTop[i] = populatedBiathletes.find(
         (athlete) => athlete.name === biathletes[i].name.value,
       );
+    }
   }
 
   const shootings = [];
@@ -432,20 +461,36 @@ function generateText() {
       break;
   }
 
-  output.value =
-    "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
-    selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
-    "\nРезультати " + modifiedGender + " " + modifiedRace +
-    "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].name + " (" + shootings[0] + ") " + times[0] +
-    "\n2. " + selectedTop[1].flag + " " + selectedTop[1].name + " (" + shootings[1] + ") +" + times[1] +
-    "\n3. " + selectedTop[2].flag + " " + selectedTop[2].name + " (" + shootings[2] + ") +" + times[2] +
-    "\n4. " + selectedTop[3].flag + " " + selectedTop[3].name + " (" + shootings[3] + ") +" + times[3] +
-    "\n5. " + selectedTop[4].flag + " " + selectedTop[4].name + " (" + shootings[4] + ") +" + times[4] +
-    "\n6. " + selectedTop[5].flag + " " + selectedTop[5].name + " (" + shootings[5] + ") +" + times[5];
+  if (race.value == "classic" ||
+      race.value == "mixed" ||
+      race.value == "single") {
+    output.value =
+      "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
+      selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
+      "\nРезультати " + modifiedGender + " " + modifiedRace +
+      "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].country + " (" + shootings[0] + ") " + times[0] +
+      "\n2. " + selectedTop[1].flag + " " + selectedTop[1].country + " (" + shootings[1] + ") +" + times[1] +
+      "\n3. " + selectedTop[2].flag + " " + selectedTop[2].country + " (" + shootings[2] + ") +" + times[2] +
+      "\n4. " + selectedTop[3].flag + " " + selectedTop[3].country + " (" + shootings[3] + ") +" + times[3] +
+      "\n5. " + selectedTop[4].flag + " " + selectedTop[4].country + " (" + shootings[4] + ") +" + times[4] +
+      "\n6. " + selectedTop[5].flag + " " + selectedTop[5].country + " (" + shootings[5] + ") +" + times[5];
+  } else {
+    output.value =
+      "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
+      selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
+      "\nРезультати " + modifiedGender + " " + modifiedRace +
+      "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].name + " (" + shootings[0] + ") " + times[0] +
+      "\n2. " + selectedTop[1].flag + " " + selectedTop[1].name + " (" + shootings[1] + ") +" + times[1] +
+      "\n3. " + selectedTop[2].flag + " " + selectedTop[2].name + " (" + shootings[2] + ") +" + times[2] +
+      "\n4. " + selectedTop[3].flag + " " + selectedTop[3].name + " (" + shootings[3] + ") +" + times[3] +
+      "\n5. " + selectedTop[4].flag + " " + selectedTop[4].name + " (" + shootings[4] + ") +" + times[4] +
+      "\n6. " + selectedTop[5].flag + " " + selectedTop[5].name + " (" + shootings[5] + ") +" + times[5];
+  }
 }
 
 competition.addEventListener("change", populateVenues);
 gender.addEventListener("change", populateBiathletes);
+race.addEventListener("change", populateBiathletes);
 race.addEventListener("change", disableShooting);
 race.addEventListener("change", addHours);
 race.addEventListener("change", () => {
