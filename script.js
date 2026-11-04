@@ -6,98 +6,98 @@ let previousGender = "";
 const race = document.getElementById("race");
 const biathletes = [
   {
-    name: document.getElementById("1stplace"),
-    list: document.getElementById("biathletes1"),
+    name: document.getElementById("place_1_athlete"),
+    list: document.getElementById("athlete_options_1"),
     shooting: [
-      document.getElementById("1stshooting1"),
-      document.getElementById("2ndshooting1"),
-      document.getElementById("3rdshooting1"),
-      document.getElementById("4thshooting1"),
+      document.getElementById("place_1_shot_1"),
+      document.getElementById("place_1_shot_2"),
+      document.getElementById("place_1_shot_3"),
+      document.getElementById("place_1_shot_4"),
     ],
     time: [
-      document.getElementById("winningmins"),
-      document.getElementById("winningsecs"),
-      document.getElementById("winningmils"),
+      document.getElementById("place_1_time_min"),
+      document.getElementById("place_1_time_sec"),
+      document.getElementById("place_1_time_ms"),
     ],
   },
   {
-    name: document.getElementById("2ndplace"),
-    list: document.getElementById("biathletes2"),
+    name: document.getElementById("place_2_athlete"),
+    list: document.getElementById("athlete_options_2"),
     shooting: [
-      document.getElementById("1stshooting2"),
-      document.getElementById("2ndshooting2"),
-      document.getElementById("3rdshooting2"),
-      document.getElementById("4thshooting2"),
+      document.getElementById("place_2_shot_1"),
+      document.getElementById("place_2_shot_2"),
+      document.getElementById("place_2_shot_3"),
+      document.getElementById("place_2_shot_4"),
     ],
     time: [
-      document.getElementById("minsbehind2"),
-      document.getElementById("secsbehind2"),
-      document.getElementById("milsbehind2"),
+      document.getElementById("place_2_gap_min"),
+      document.getElementById("place_2_gap_sec"),
+      document.getElementById("place_2_gap_ms"),
     ],
   },
   {
-    name: document.getElementById("3rdplace"),
-    list: document.getElementById("biathletes3"),
+    name: document.getElementById("place_3_athlete"),
+    list: document.getElementById("athlete_options_3"),
     shooting: [
-      document.getElementById("1stshooting3"),
-      document.getElementById("2ndshooting3"),
-      document.getElementById("3rdshooting3"),
-      document.getElementById("4thshooting3"),
+      document.getElementById("place_3_shot_1"),
+      document.getElementById("place_3_shot_2"),
+      document.getElementById("place_3_shot_3"),
+      document.getElementById("place_3_shot_4"),
     ],
     time: [
-      document.getElementById("minsbehind3"),
-      document.getElementById("secsbehind3"),
-      document.getElementById("milsbehind3"),
+      document.getElementById("place_3_gap_min"),
+      document.getElementById("place_3_gap_sec"),
+      document.getElementById("place_3_gap_ms"),
     ],
   },
   {
-    name: document.getElementById("4thplace"),
-    list: document.getElementById("biathletes4"),
+    name: document.getElementById("place_4_athlete"),
+    list: document.getElementById("athlete_options_4"),
     shooting: [
-      document.getElementById("1stshooting4"),
-      document.getElementById("2ndshooting4"),
-      document.getElementById("3rdshooting4"),
-      document.getElementById("4thshooting4"),
+      document.getElementById("place_4_shot_1"),
+      document.getElementById("place_4_shot_2"),
+      document.getElementById("place_4_shot_3"),
+      document.getElementById("place_4_shot_4"),
     ],
     time: [
-      document.getElementById("minsbehind4"),
-      document.getElementById("secsbehind4"),
-      document.getElementById("milsbehind4"),
+      document.getElementById("place_4_gap_min"),
+      document.getElementById("place_4_gap_sec"),
+      document.getElementById("place_4_gap_ms"),
     ],
   },
   {
-    name: document.getElementById("5thplace"),
-    list: document.getElementById("biathletes5"),
+    name: document.getElementById("place_5_athlete"),
+    list: document.getElementById("athlete_options_5"),
     shooting: [
-      document.getElementById("1stshooting5"),
-      document.getElementById("2ndshooting5"),
-      document.getElementById("3rdshooting5"),
-      document.getElementById("4thshooting5"),
+      document.getElementById("place_5_shot_1"),
+      document.getElementById("place_5_shot_2"),
+      document.getElementById("place_5_shot_3"),
+      document.getElementById("place_5_shot_4"),
     ],
     time: [
-      document.getElementById("minsbehind5"),
-      document.getElementById("secsbehind5"),
-      document.getElementById("milsbehind5"),
+      document.getElementById("place_5_gap_min"),
+      document.getElementById("place_5_gap_sec"),
+      document.getElementById("place_5_gap_ms"),
     ],
   },
   {
-    name: document.getElementById("6thplace"),
-    list: document.getElementById("biathletes6"),
+    name: document.getElementById("place_6_athlete"),
+    list: document.getElementById("athlete_options_6"),
     shooting: [
-      document.getElementById("1stshooting6"),
-      document.getElementById("2ndshooting6"),
-      document.getElementById("3rdshooting6"),
-      document.getElementById("4thshooting6"),
+      document.getElementById("place_6_shot_1"),
+      document.getElementById("place_6_shot_2"),
+      document.getElementById("place_6_shot_3"),
+      document.getElementById("place_6_shot_4"),
     ],
     time: [
-      document.getElementById("minsbehind6"),
-      document.getElementById("secsbehind6"),
-      document.getElementById("milsbehind6"),
+      document.getElementById("place_6_gap_min"),
+      document.getElementById("place_6_gap_sec"),
+      document.getElementById("place_6_gap_ms"),
     ],
   },
 ];
 let populatedBiathletes = [];
-const winningTime = document.getElementById("winningtime");
+const winnerTimeLabel = document.getElementById("winner_time_label");
 const button = document.getElementById("generate");
 
 async function populateVenues() {
@@ -134,6 +134,7 @@ async function populateVenues() {
         document.getElementById("venue").add(option);
       }
       break;
+      default: break;
   }
 }
 
@@ -156,9 +157,9 @@ function disableShooting() {
 
 function addHours() {
   if (race.value == "classic" || race.value == "mixed") {
-    winningTime.textContent = "Час: 1:";
+    winnerTimeLabel.textContent = "Час: 1:";
   } else {
-    winningTime.textContent = "Час:";
+    winnerTimeLabel.textContent = "Час:";
   }
 }
 
@@ -338,19 +339,19 @@ function generateText() {
     times[i] = formatTime(biathletes[i]);
   }
 
-  const errorText = document.getElementById("errorText");
+  const errorText = document.getElementById("error_text");
   errorText.value = "";
 
   // Error handling
-  if (competition.value === "empty") {
+  if (competition.value === "") {
     errorText.value = "Змагання не було вибрано!";
     output.value = "";
     return;
-  } else if (gender.value === "empty") {
+  } else if (gender.value === "") {
     errorText.value = "Гендер не було вибрано!";
     output.value = "";
     return;
-  } else if (race.value === "empty") {
+  } else if (race.value === "") {
     errorText.value = "Гонку не було вибрано!";
     output.value = "";
     return;
@@ -458,6 +459,8 @@ function generateText() {
       break;
     case "single":
       modifiedRace = "одиночної змішаної естафети";
+      break;
+    default:
       break;
   }
 
