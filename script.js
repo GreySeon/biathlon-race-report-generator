@@ -5,96 +5,12 @@ const gender = document.getElementById("gender");
 let previousGender = "";
 const race = document.getElementById("race");
 const biathletes = [
-  {
-    name: document.getElementById("place_1_athlete"),
-    list: document.getElementById("athlete_options_1"),
-    shooting: [
-      document.getElementById("place_1_shot_1"),
-      document.getElementById("place_1_shot_2"),
-      document.getElementById("place_1_shot_3"),
-      document.getElementById("place_1_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_1_time_min"),
-      document.getElementById("place_1_time_sec"),
-      document.getElementById("place_1_time_ms"),
-    ],
-  },
-  {
-    name: document.getElementById("place_2_athlete"),
-    list: document.getElementById("athlete_options_2"),
-    shooting: [
-      document.getElementById("place_2_shot_1"),
-      document.getElementById("place_2_shot_2"),
-      document.getElementById("place_2_shot_3"),
-      document.getElementById("place_2_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_2_gap_min"),
-      document.getElementById("place_2_gap_sec"),
-      document.getElementById("place_2_gap_ms"),
-    ],
-  },
-  {
-    name: document.getElementById("place_3_athlete"),
-    list: document.getElementById("athlete_options_3"),
-    shooting: [
-      document.getElementById("place_3_shot_1"),
-      document.getElementById("place_3_shot_2"),
-      document.getElementById("place_3_shot_3"),
-      document.getElementById("place_3_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_3_gap_min"),
-      document.getElementById("place_3_gap_sec"),
-      document.getElementById("place_3_gap_ms"),
-    ],
-  },
-  {
-    name: document.getElementById("place_4_athlete"),
-    list: document.getElementById("athlete_options_4"),
-    shooting: [
-      document.getElementById("place_4_shot_1"),
-      document.getElementById("place_4_shot_2"),
-      document.getElementById("place_4_shot_3"),
-      document.getElementById("place_4_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_4_gap_min"),
-      document.getElementById("place_4_gap_sec"),
-      document.getElementById("place_4_gap_ms"),
-    ],
-  },
-  {
-    name: document.getElementById("place_5_athlete"),
-    list: document.getElementById("athlete_options_5"),
-    shooting: [
-      document.getElementById("place_5_shot_1"),
-      document.getElementById("place_5_shot_2"),
-      document.getElementById("place_5_shot_3"),
-      document.getElementById("place_5_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_5_gap_min"),
-      document.getElementById("place_5_gap_sec"),
-      document.getElementById("place_5_gap_ms"),
-    ],
-  },
-  {
-    name: document.getElementById("place_6_athlete"),
-    list: document.getElementById("athlete_options_6"),
-    shooting: [
-      document.getElementById("place_6_shot_1"),
-      document.getElementById("place_6_shot_2"),
-      document.getElementById("place_6_shot_3"),
-      document.getElementById("place_6_shot_4"),
-    ],
-    time: [
-      document.getElementById("place_6_gap_min"),
-      document.getElementById("place_6_gap_sec"),
-      document.getElementById("place_6_gap_ms"),
-    ],
-  },
+  AthleteResultRow.fromExisting(1),
+  AthleteResultRow.fromExisting(2),
+  AthleteResultRow.fromExisting(3),
+  AthleteResultRow.fromExisting(4),
+  AthleteResultRow.fromExisting(5),
+  AthleteResultRow.fromExisting(6),
 ];
 let populatedBiathletes = [];
 const winnerTimeLabel = document.getElementById("winner_time_label");
@@ -102,8 +18,12 @@ const button = document.getElementById("generate");
 
 async function populateVenues() {
   venue.replaceChildren(); // Clear previous options
-  const worldCupVenues = await fetch("JSON/world_cup_venues.json").then(response => response.json());
-  const ibuCupVenues = await fetch("JSON/ibu_cup_venues.json").then(response => response.json());
+  const worldCupVenues = await fetch("JSON/world_cup_venues.json").then(
+    (response) => response.json(),
+  );
+  const ibuCupVenues = await fetch("JSON/ibu_cup_venues.json").then(
+    (response) => response.json(),
+  );
 
   switch (competition.value) {
     case "world_cup":
@@ -115,7 +35,7 @@ async function populateVenues() {
             worldCupVenues[i].flag +
             " " +
             worldCupVenues[i].stadium,
-          worldCupVenues[i].number
+          worldCupVenues[i].number,
         );
         document.getElementById("venue").add(option);
       }
@@ -129,12 +49,13 @@ async function populateVenues() {
             ibuCupVenues[i].flag +
             " " +
             ibuCupVenues[i].stadium,
-          ibuCupVenues[i].number
+          ibuCupVenues[i].number,
         );
         document.getElementById("venue").add(option);
       }
       break;
-      default: break;
+    default:
+      break;
   }
 }
 
@@ -283,7 +204,10 @@ function formatTime(biathlete) {
     return `${secondsPart.padStart(2, "0")}.${tenths}`;
   }
 
-  if ((race.value == "classic" || race.value == "mixed") && biathlete == biathletes[0]) {
+  if (
+    (race.value == "classic" || race.value == "mixed") &&
+    biathlete == biathletes[0]
+  ) {
     return `1:${minutePart.padStart(2, "0")}:${secondsPart.padStart(2, "0")}.${tenths}`;
   }
 
@@ -291,9 +215,10 @@ function formatTime(biathlete) {
 }
 
 function generateText() {
-  const selectedCompetition = competition.options[competition.selectedIndex].text;
+  const selectedCompetition =
+    competition.options[competition.selectedIndex].text;
   const selectedVenue = populatedVenues.find(
-    item => String(item.number) === venue.value
+    (item) => String(item.number) === venue.value,
   );
   const selectedGender = gender.options[gender.selectedIndex].text;
   let modifiedGender = "";
@@ -464,30 +389,142 @@ function generateText() {
       break;
   }
 
-  if (race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single") {
+  if (
+    race.value == "classic" ||
+    race.value == "mixed" ||
+    race.value == "single"
+  ) {
     output.value =
-      "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
-      selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
-      "\nРезультати " + modifiedGender + " " + modifiedRace +
-      "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].country + " (" + shootings[0] + ") " + times[0] +
-      "\n2. " + selectedTop[1].flag + " " + selectedTop[1].country + " (" + shootings[1] + ") +" + times[1] +
-      "\n3. " + selectedTop[2].flag + " " + selectedTop[2].country + " (" + shootings[2] + ") +" + times[2] +
-      "\n4. " + selectedTop[3].flag + " " + selectedTop[3].country + " (" + shootings[3] + ") +" + times[3] +
-      "\n5. " + selectedTop[4].flag + " " + selectedTop[4].country + " (" + shootings[4] + ") +" + times[4] +
-      "\n6. " + selectedTop[5].flag + " " + selectedTop[5].country + " (" + shootings[5] + ") +" + times[5];
+      "🏆 " +
+      selectedCompetition +
+      ", " +
+      selectedVenue.number +
+      "-й етап 🏆\n" +
+      selectedVenue.flag +
+      " " +
+      selectedVenue.stadium +
+      ", " +
+      selectedVenue.country +
+      " " +
+      selectedVenue.flag +
+      "\nРезультати " +
+      modifiedGender +
+      " " +
+      modifiedRace +
+      "\n\n1. " +
+      selectedTop[0].flag +
+      " " +
+      selectedTop[0].country +
+      " (" +
+      shootings[0] +
+      ") " +
+      times[0] +
+      "\n2. " +
+      selectedTop[1].flag +
+      " " +
+      selectedTop[1].country +
+      " (" +
+      shootings[1] +
+      ") +" +
+      times[1] +
+      "\n3. " +
+      selectedTop[2].flag +
+      " " +
+      selectedTop[2].country +
+      " (" +
+      shootings[2] +
+      ") +" +
+      times[2] +
+      "\n4. " +
+      selectedTop[3].flag +
+      " " +
+      selectedTop[3].country +
+      " (" +
+      shootings[3] +
+      ") +" +
+      times[3] +
+      "\n5. " +
+      selectedTop[4].flag +
+      " " +
+      selectedTop[4].country +
+      " (" +
+      shootings[4] +
+      ") +" +
+      times[4] +
+      "\n6. " +
+      selectedTop[5].flag +
+      " " +
+      selectedTop[5].country +
+      " (" +
+      shootings[5] +
+      ") +" +
+      times[5];
   } else {
     output.value =
-      "🏆 " + selectedCompetition + ", " + selectedVenue.number + "-й етап 🏆\n" +
-      selectedVenue.flag + " " + selectedVenue.stadium + ", " + selectedVenue.country + " " + selectedVenue.flag +
-      "\nРезультати " + modifiedGender + " " + modifiedRace +
-      "\n\n1. " + selectedTop[0].flag + " " + selectedTop[0].name + " (" + shootings[0] + ") " + times[0] +
-      "\n2. " + selectedTop[1].flag + " " + selectedTop[1].name + " (" + shootings[1] + ") +" + times[1] +
-      "\n3. " + selectedTop[2].flag + " " + selectedTop[2].name + " (" + shootings[2] + ") +" + times[2] +
-      "\n4. " + selectedTop[3].flag + " " + selectedTop[3].name + " (" + shootings[3] + ") +" + times[3] +
-      "\n5. " + selectedTop[4].flag + " " + selectedTop[4].name + " (" + shootings[4] + ") +" + times[4] +
-      "\n6. " + selectedTop[5].flag + " " + selectedTop[5].name + " (" + shootings[5] + ") +" + times[5];
+      "🏆 " +
+      selectedCompetition +
+      ", " +
+      selectedVenue.number +
+      "-й етап 🏆\n" +
+      selectedVenue.flag +
+      " " +
+      selectedVenue.stadium +
+      ", " +
+      selectedVenue.country +
+      " " +
+      selectedVenue.flag +
+      "\nРезультати " +
+      modifiedGender +
+      " " +
+      modifiedRace +
+      "\n\n1. " +
+      selectedTop[0].flag +
+      " " +
+      selectedTop[0].name +
+      " (" +
+      shootings[0] +
+      ") " +
+      times[0] +
+      "\n2. " +
+      selectedTop[1].flag +
+      " " +
+      selectedTop[1].name +
+      " (" +
+      shootings[1] +
+      ") +" +
+      times[1] +
+      "\n3. " +
+      selectedTop[2].flag +
+      " " +
+      selectedTop[2].name +
+      " (" +
+      shootings[2] +
+      ") +" +
+      times[2] +
+      "\n4. " +
+      selectedTop[3].flag +
+      " " +
+      selectedTop[3].name +
+      " (" +
+      shootings[3] +
+      ") +" +
+      times[3] +
+      "\n5. " +
+      selectedTop[4].flag +
+      " " +
+      selectedTop[4].name +
+      " (" +
+      shootings[4] +
+      ") +" +
+      times[4] +
+      "\n6. " +
+      selectedTop[5].flag +
+      " " +
+      selectedTop[5].name +
+      " (" +
+      shootings[5] +
+      ") +" +
+      times[5];
   }
 }
 

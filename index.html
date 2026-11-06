@@ -9,6 +9,7 @@
             name="description"
             content="A simple web-based biathlon results formatter with customizable race templates and athlete selection." />
         <link rel="stylesheet" href="style.css" />
+        <script src="AthleteResultRow.js" defer></script>
         <script src="script.js" defer></script>
     </head>
     <body>
@@ -77,12 +78,12 @@
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_2_shot_2" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_2_shot_3" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_2_shot_4" />
-                <label for="place_2_gap_min">+</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_2_gap_min" />
-                <label for="place_2_gap_sec">:</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_2_gap_sec" />
-                <label for="place_2_gap_ms">.</label>
-                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_2_gap_ms" />
+                <label for="place_2_time_min">+</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_2_time_min" />
+                <label for="place_2_time_sec">:</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_2_time_sec" />
+                <label for="place_2_time_ms">.</label>
+                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_2_time_ms" />
             </p>
             <p>
                 <label for="place_3_athlete">3 місце: </label>
@@ -92,12 +93,12 @@
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_3_shot_2" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_3_shot_3" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_3_shot_4" />
-                <label for="place_3_gap_min">+</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_3_gap_min" />
-                <label for="place_3_gap_sec">:</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_3_gap_sec" />
-                <label for="place_3_gap_ms">.</label>
-                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_3_gap_ms" />
+                <label for="place_3_time_min">+</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_3_time_min" />
+                <label for="place_3_time_sec">:</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_3_time_sec" />
+                <label for="place_3_time_ms">.</label>
+                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_3_time_ms" />
             </p>
             <p>
                 <label for="place_4_athlete">4 місце: </label>
@@ -107,12 +108,12 @@
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_4_shot_2" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_4_shot_3" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_4_shot_4" />
-                <label for="place_4_gap_min">+</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_4_gap_min" />
-                <label for="place_4_gap_sec">:</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_4_gap_sec" />
-                <label for="place_4_gap_ms">.</label>
-                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_4_gap_ms" />
+                <label for="place_4_time_min">+</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_4_time_min" />
+                <label for="place_4_time_sec">:</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_4_time_sec" />
+                <label for="place_4_time_ms">.</label>
+                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_4_time_ms" />
             </p>
             <p>
                 <label for="place_5_athlete">5 місце: </label>
@@ -122,12 +123,12 @@
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_5_shot_2" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_5_shot_3" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_5_shot_4" />
-                <label for="place_5_gap_min">+</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_5_gap_min" />
-                <label for="place_5_gap_sec">:</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_5_gap_sec" />
-                <label for="place_5_gap_ms">.</label>
-                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_5_gap_ms" />
+                <label for="place_5_time_min">+</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_5_time_min" />
+                <label for="place_5_time_sec">:</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_5_time_sec" />
+                <label for="place_5_time_ms">.</label>
+                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_5_time_ms" />
             </p>
             <p>
                 <label for="place_6_athlete">6 місце: </label>
@@ -137,12 +138,12 @@
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_6_shot_2" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_6_shot_3" />
                 <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_6_shot_4" />
-                <label for="place_6_gap_min">+</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_6_gap_min" />
-                <label for="place_6_gap_sec">:</label>
-                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_6_gap_sec" />
-                <label for="place_6_gap_ms">.</label>
-                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_6_gap_ms" />
+                <label for="place_6_time_min">+</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_6_time_min" />
+                <label for="place_6_time_sec">:</label>
+                <input type="text" inputmode="numeric" maxlength="2" size="1" value="0" id="place_6_time_sec" />
+                <label for="place_6_time_ms">.</label>
+                <input type="text" inputmode="numeric" maxlength="1" size="1" value="0" id="place_6_time_ms" />
             </p>
             <p>
                 <textarea id="output" readonly></textarea>
