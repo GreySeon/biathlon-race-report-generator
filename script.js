@@ -1,9 +1,18 @@
+// Competition type
 const competition = document.getElementById("competition");
+// Venue
 const venue = document.getElementById("venue");
+const venueDataByCompetition = {
+  world_cup: "JSON/world_cup_venues.json",
+  ibu_cup: "JSON/ibu_cup_venues.json",
+};
 let populatedVenues = [];
+// Gender
 const gender = document.getElementById("gender");
 let previousGender = "";
+// Race type
 const race = document.getElementById("race");
+// Biathletes
 const biathletes = [
   AthleteResultRow.fromExisting(1),
   AthleteResultRow.fromExisting(2),
@@ -14,64 +23,49 @@ const biathletes = [
 ];
 let populatedBiathletes = [];
 const winnerTimeLabel = document.getElementById("winner_time_label");
+
 const button = document.getElementById("generate");
+
+async function loadJson(url) {
+  const response = await fetch(url);
+  return response.json();
+}
 
 async function populateVenues() {
   venue.replaceChildren(); // Clear previous options
-  const worldCupVenues = await fetch("JSON/world_cup_venues.json").then(
-    (response) => response.json(),
-  );
-  const ibuCupVenues = await fetch("JSON/ibu_cup_venues.json").then(
-    (response) => response.json(),
-  );
 
-  switch (competition.value) {
-    case "world_cup":
-      populatedVenues = worldCupVenues;
-      for (let i = 0; i < worldCupVenues.length; i++) {
-        const option = new Option(
-          worldCupVenues[i].number +
-            ". " +
-            worldCupVenues[i].flag +
-            " " +
-            worldCupVenues[i].stadium,
-          worldCupVenues[i].number,
-        );
-        document.getElementById("venue").add(option);
-      }
-      break;
-    case "ibu_cup":
-      populatedVenues = ibuCupVenues;
-      for (let i = 0; i < ibuCupVenues.length; i++) {
-        const option = new Option(
-          ibuCupVenues[i].number +
-            ". " +
-            ibuCupVenues[i].flag +
-            " " +
-            ibuCupVenues[i].stadium,
-          ibuCupVenues[i].number,
-        );
-        document.getElementById("venue").add(option);
-      }
-      break;
-    default:
-      break;
+  const sourceData = venueDataByCompetition[competition.value];
+  if (!sourceData) {
+    populatedVenues = [];
+    return;
   }
+
+  const venues = await loadJson(sourceData);
+  populatedVenues = venues;
+
+  const options = venues.map(({ number, flag, stadium }) => {
+    return new Option(`${number}. ${flag} ${stadium}`, String(number));
+  });
+
+  venue.append(...options); // "..." is used instead of a "for" loop
+}
+
+function isRelayRaceSelected() {
+  return (
+    race.value === "classic" ||
+    race.value === "mixed" ||
+    race.value === "single"
+  );
 }
 
 function disableShooting() {
-  for (let i = 0; i < biathletes.length; i++) {
-    if (
-      race.value == "sprint" ||
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single"
-    ) {
-      biathletes[i].shooting[2].disabled = true;
-      biathletes[i].shooting[3].disabled = true;
+  for (const biathlete of biathletes) {
+    if (isRelayRaceSelected() || race.value === "sprint") {
+      biathlete.shooting[2].disabled = true;
+      biathlete.shooting[3].disabled = true;
     } else {
-      biathletes[i].shooting[2].disabled = false;
-      biathletes[i].shooting[3].disabled = false;
+      biathlete.shooting[2].disabled = false;
+      biathlete.shooting[3].disabled = false;
     }
   }
 }
@@ -84,66 +78,49 @@ function addHours() {
   }
 }
 
-async function populateBiathletes() {
-  for (let i = 0; i < biathletes.length; i++) {
-    biathletes[i].list.replaceChildren(); // Clear previous options
-    biathletes[i].name.value = "";
-    const men = await fetch("JSON/men_biathletes.json").then((response) =>
-      response.json(),
-    );
-    const women = await fetch("JSON/women_biathletes.json").then((response) =>
-      response.json(),
-    );
-    const countries = await fetch("JSON/countries.json").then((response) =>
-      response.json(),
-    );
+async function loadBiathleteData() {
+  const [men, women, countries] = await Promise.all([
+    loadJson("JSON/men_biathletes.json"),
+    loadJson("JSON/women_biathletes.json"),
+    loadJson("JSON/countries.json"),
+  ]);
 
-    if (
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single"
-    ) {
-      populatedBiathletes = countries;
-      for (let j = 0; j < countries.length; j++) {
-        const option = document.createElement("option");
-        option.value = countries[j].country;
-        option.label = countries[j].flag;
-        biathletes[i].list.append(option);
-      }
-    } else {
-      switch (gender.value) {
-        case "men":
-          populatedBiathletes = men;
-          for (let j = 0; j < men.length; j++) {
-            const option = document.createElement("option");
-            option.value = men[j].name;
-            option.label = men[j].flag;
-            biathletes[i].list.append(option);
-          }
-          break;
-        case "women":
-          populatedBiathletes = women;
-          for (let j = 0; j < women.length; j++) {
-            const option = document.createElement("option");
-            option.value = women[j].name; // це значення потрапить у поле вводу
-            option.label = women[j].flag; // прапор у підказці
-            biathletes[i].list.append(option);
-          }
-          break;
-      }
-    }
+  return { men, women, countries };
+}
+
+async function populateBiathletes() {
+  const athleteData = await loadBiathleteData();
+
+  const sourceData = isRelayRaceSelected()
+    ? athleteData.countries
+    : gender.value === "men"
+      ? athleteData.men
+      : athleteData.women;
+
+  populatedBiathletes = sourceData;
+
+  for (const biathlete of biathletes) {
+    biathlete.list.replaceChildren(); // Clear previous options
+    biathlete.name.value = "";
+
+    const options = sourceData.map((item) => {
+      const value = isRelayRaceSelected() ? item.country : item.name;
+      const label = item.flag;
+
+      const option = document.createElement("option");
+      option.value = value;
+      option.label = label;
+      return option;
+    });
+
+    biathlete.list.append(...options);
   }
-  previousGender = gender.value;
 }
 
 function changeShootingFormat(input) {
   let value = input.value.replace(/\D/g, "");
 
-  if (
-    race.value == "classic" ||
-    race.value == "mixed" ||
-    race.value == "single"
-  ) {
+  if (isRelayRaceSelected()) {
     input.maxLength = 2;
     value = value.slice(0, 2);
 
