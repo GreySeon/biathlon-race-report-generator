@@ -26,6 +26,117 @@ const winnerTimeLabel = document.getElementById("winner_time_label");
 
 const button = document.getElementById("generate");
 
+// Race helpers
+function isRelayRaceSelected() {
+  return (
+    race.value === "classic" ||
+    race.value === "mixed" ||
+    race.value === "single"
+  );
+}
+
+function isWinnerHourRace() {
+  return race.value === "classic" || race.value === "mixed";
+}
+
+// Shooting helpers
+function getShootingRules() {
+  if (isRelayRaceSelected()) {
+    return {
+      maxLength: 2,
+      maxValue: 24,
+    };
+  } else {
+    return {
+      maxLength: 1,
+      maxValue: 5,
+    };
+  }
+}
+
+function changeShootingFormat(input) {
+  let value = input.value.replace(/\D/g, "");
+
+  const rules = getShootingRules();
+  input.maxLength = rules.maxLength;
+
+  value = value.slice(0, rules.maxLength);
+
+  if (Number(value) > rules.maxValue) {
+    value = value.slice(0, -1);
+  }
+
+  if (!isRelayRaceSelected()) {
+    value = value.replace(/[6-9]/g, "").slice(0, 1);
+  }
+
+  input.value = value;
+}
+
+function disableShooting() {
+  for (const biathlete of biathletes) {
+    const shouldDisableLastShots =
+      isRelayRaceSelected() || race.value === "sprint";
+    biathlete.shooting[2].disabled = shouldDisableLastShots;
+    biathlete.shooting[3].disabled = shouldDisableLastShots;
+  }
+}
+
+// Time helpers
+function addHours() {
+  if (race.value == "classic" || race.value == "mixed") {
+    winnerTimeLabel.textContent = "Час: 1:";
+  } else {
+    winnerTimeLabel.textContent = "Час:";
+  }
+}
+
+function getTimeParts(biathlete) {
+  const [minutes, seconds, tenths] = biathlete.time.map(
+    (input) => input.value || "0",
+  );
+  return {
+    minutes: Number(minutes),
+    seconds: Number(seconds),
+    tenths: Number(tenths),
+  };
+}
+
+function formatTime(biathlete) {
+  const { minutes, seconds, tenths } = getTimeParts(biathlete);
+
+  if (minutes === 0 && seconds === 0 && tenths === 0) {
+    return "0.0";
+  }
+
+  if (minutes === 0) {
+    return `${seconds}.${tenths}`;
+  }
+
+  if (isWinnerHourRace() && biathlete == biathletes[0]) {
+    return `1:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
+  }
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}.${tenths}`;
+}
+
+
+function bindAthleteInputHandlers() {
+  for (const athlete of biathletes) {
+    for (const input of athlete.shooting) {
+      input.addEventListener("input", () => changeShootingFormat(input));
+    }
+
+    for (const input of athlete.time) {
+      input.addEventListener("input", (event) => {
+        const value = event.currentTarget.value.replace(/\D/g, "").slice(0, 2);
+        event.currentTarget.value =
+          Number(value) > 59 ? value.slice(0, 1) : value;
+      });
+    }
+  }
+}
+
 async function loadJson(url) {
   const response = await fetch(url);
   return response.json();
@@ -48,34 +159,6 @@ async function populateVenues() {
   });
 
   venue.append(...options); // "..." is used instead of a "for" loop
-}
-
-function isRelayRaceSelected() {
-  return (
-    race.value === "classic" ||
-    race.value === "mixed" ||
-    race.value === "single"
-  );
-}
-
-function disableShooting() {
-  for (const biathlete of biathletes) {
-    if (isRelayRaceSelected() || race.value === "sprint") {
-      biathlete.shooting[2].disabled = true;
-      biathlete.shooting[3].disabled = true;
-    } else {
-      biathlete.shooting[2].disabled = false;
-      biathlete.shooting[3].disabled = false;
-    }
-  }
-}
-
-function addHours() {
-  if (race.value == "classic" || race.value == "mixed") {
-    winnerTimeLabel.textContent = "Час: 1:";
-  } else {
-    winnerTimeLabel.textContent = "Час:";
-  }
 }
 
 async function loadBiathleteData() {
@@ -115,80 +198,6 @@ async function populateBiathletes() {
 
     biathlete.list.append(...options);
   }
-}
-
-function changeShootingFormat(input) {
-  let value = input.value.replace(/\D/g, "");
-
-  if (isRelayRaceSelected()) {
-    input.maxLength = 2;
-    value = value.slice(0, 2);
-
-    if (Number(value) > 24) {
-      value = value.slice(0, -1);
-    }
-  } else {
-    input.maxLength = 1;
-    value = value.replace(/[6-9]/g, "").slice(0, 1);
-  }
-
-  input.value = value;
-}
-
-for (const athlete of biathletes) {
-  for (const input of athlete.shooting) {
-    input.addEventListener("input", () => {
-      changeShootingFormat(input);
-    });
-  }
-}
-
-// For times
-for (let i = 0; i < biathletes.length; i++) {
-  for (let j = 0; j < biathletes[i].time.length; j++) {
-    biathletes[i].time[j].addEventListener("input", (event) => {
-      const input = event.currentTarget;
-      let value = input.value.replace(/\D/g, "").slice(0, 2);
-
-      if (Number(value) > 59) {
-        value = value.slice(0, 1);
-      }
-
-      input.value = value;
-    });
-  }
-}
-
-function formatTime(biathlete) {
-  const [minutes, seconds, tenths] = biathlete.time.map(
-    (input) => input.value || "0",
-  );
-
-  const minuteValue = Number(minutes);
-  const minutePart = minuteValue === 0 ? "" : `${minuteValue}`;
-  const secondsValue = Number(seconds);
-  const secondsPart = secondsValue === 0 ? "" : `${secondsValue}`;
-
-  if (minuteValue === 0 && secondsValue === 0 && Number(tenths) === 0) {
-    return "0.0";
-  }
-
-  if (minuteValue === 0) {
-    if (secondsValue <= 9) {
-      return `${secondsPart}.${tenths}`;
-    }
-
-    return `${secondsPart.padStart(2, "0")}.${tenths}`;
-  }
-
-  if (
-    (race.value == "classic" || race.value == "mixed") &&
-    biathlete == biathletes[0]
-  ) {
-    return `1:${minutePart.padStart(2, "0")}:${secondsPart.padStart(2, "0")}.${tenths}`;
-  }
-
-  return `${minutePart}:${secondsPart.padStart(2, "0")}.${tenths}`;
 }
 
 function generateText() {
@@ -517,5 +526,6 @@ race.addEventListener("change", () => {
     }
   }
 });
+bindAthleteInputHandlers();
 
 button.addEventListener("click", generateText);
