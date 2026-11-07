@@ -12,6 +12,7 @@ const gender = document.getElementById("gender");
 let previousGender = "";
 // Race type
 const race = document.getElementById("race");
+let previousRaceValue = "";
 // Biathletes
 const biathletes = [
   AthleteResultRow.fromExisting(1),
@@ -28,11 +29,26 @@ const button = document.getElementById("generate");
 
 // Race helpers
 function isRelayRaceSelected() {
+  return isRelayRaceValue(race.value);
+}
+
+function isRelayRaceValue(value) {
   return (
-    race.value === "classic" ||
-    race.value === "mixed" ||
-    race.value === "single"
+    value === "classic" ||
+    value === "mixed" ||
+    value === "single"
   );
+}
+
+function shouldClearOnRaceChange(previousValue, nextValue) {
+  return isRelayRaceValue(previousValue) !== isRelayRaceValue(nextValue);
+}
+
+function clearAthleteRows() {
+  for (const athlete of biathletes) {
+    athlete.list.replaceChildren();
+    athlete.name.value = "";
+  }
 }
 
 function isWinnerHourRace() {
@@ -515,16 +531,36 @@ function generateText() {
 }
 
 competition.addEventListener("change", populateVenues);
-gender.addEventListener("change", populateBiathletes);
-race.addEventListener("change", populateBiathletes);
-race.addEventListener("change", disableShooting);
-race.addEventListener("change", addHours);
+gender.addEventListener("change", () => {
+  const shouldResetSelection =
+    previousGender === "" ? true :
+    !isRelayRaceSelected() && previousGender !== gender.value;
+
+  if (shouldResetSelection) {
+    clearAthleteRows();
+    populateBiathletes();
+  }
+
+  previousGender = gender.value;
+});
 race.addEventListener("change", () => {
+  const shouldClear = shouldClearOnRaceChange(previousRaceValue, race.value);
+
+  if (shouldClear) {
+    clearAthleteRows();
+    populateBiathletes();
+  }
+
+  disableShooting();
+  addHours();
+
   for (const athlete of biathletes) {
     for (const input of athlete.shooting) {
       changeShootingFormat(input);
     }
   }
+
+  previousRaceValue = race.value;
 });
 bindAthleteInputHandlers();
 
