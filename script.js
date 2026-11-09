@@ -26,6 +26,7 @@ let populatedBiathletes = [];
 const winnerTimeLabel = document.getElementById("winner_time_label");
 
 const button = document.getElementById("generate");
+const errorText = document.getElementById("error_text");
 
 // Race helpers
 function isRelayRaceSelected() {
@@ -40,6 +41,7 @@ function isRelayRaceValue(value) {
   );
 }
 
+// Compares whether the previous and current race types are both relay or non-relay
 function shouldClearOnRaceChange(previousValue, nextValue) {
   return isRelayRaceValue(previousValue) !== isRelayRaceValue(nextValue);
 }
@@ -216,24 +218,25 @@ async function populateBiathletes() {
   }
 }
 
-function generateText() {
-  const selectedCompetition =
-    competition.options[competition.selectedIndex].text;
-  const selectedVenue = populatedVenues.find(
-    (item) => String(item.number) === venue.value,
-  );
-  const selectedGender = gender.options[gender.selectedIndex].text;
-  let modifiedGender = "";
-  const selectedRace = race.options[race.selectedIndex].text;
-  let modifiedRace = "";
+function getReportState() {
+  return {
+    competition: competition.value,
+    venue: venue.value,
+    gender: gender.value,
+    race: race.value,
+    athletes: biathletes.map((athlete) => ({
+      name: athlete.name.value,
+      shooting: athlete.shooting.map((input) => input.value),
+      time: athlete.time.map((input) => input.value),
+    })),
+  };
+}
 
+function getSelectedTop() {
   const selectedTop = [];
+
   for (let i = 0; i < 6; i++) {
-    if (
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single"
-    ) {
+    if (isRelayRaceSelected()) {
       selectedTop[i] = populatedBiathletes.find(
         (team) => team.country === biathletes[i].name.value,
       );
@@ -244,14 +247,14 @@ function generateText() {
     }
   }
 
+  return selectedTop;
+}
+
+function getShootings() {
   const shootings = [];
+
   for (let i = 0; i < 6; i++) {
-    if (
-      race.value == "sprint" ||
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single"
-    ) {
+    if (race.value == "sprint" || isRelayRaceSelected()) {
       shootings[i] =
         biathletes[i].shooting[0].value + "+" + biathletes[i].shooting[1].value;
     } else {
@@ -261,280 +264,144 @@ function generateText() {
     }
   }
 
+  return shootings;
+}
+
+function getTimes() {
   const times = [];
-  for (let i = 0; i < 6; i++) {
-    times[i] = formatTime(biathletes[i]);
+
+  for (const biathlete of biathletes) {
+    times.push(formatTime(biathlete));
   }
 
-  const errorText = document.getElementById("error_text");
-  errorText.value = "";
+  return times;
+}
 
-  // Error handling
-  if (competition.value === "") {
-    errorText.value = "Змагання не було вибрано!";
-    output.value = "";
-    return;
-  } else if (gender.value === "") {
-    errorText.value = "Гендер не було вибрано!";
-    output.value = "";
-    return;
-  } else if (race.value === "") {
-    errorText.value = "Гонку не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[0].name.value === "") {
-    errorText.value = "Біатлоніста для 1 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[1].name.value === "") {
-    errorText.value = "Біатлоніста для 2 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[2].name.value === "") {
-    errorText.value = "Біатлоніста для 3 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[3].name.value === "") {
-    errorText.value = "Біатлоніста для 4 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[4].name.value === "") {
-    errorText.value = "Біатлоніста для 5 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (biathletes[5].name.value === "") {
-    errorText.value = "Біатлоніста для 6 місця не було вибрано!";
-    output.value = "";
-    return;
-  } else if (times[0] === "0.0") {
-    errorText.value = "Переможний час для 1 місця не було встановлено!";
-    output.value = "";
-    return;
-  }
+// Error handling
+function validateReportState(state) {
+  if (!competition.value) return "Змагання не було вибрано!";
+  if (!gender.value) return "Гендер не було вибрано!";
+  if (!race.value) return "Гонку не було вибрано!";
 
-  for (let i = 0; i < biathletes.length; i++) {
-    for (let j = i + 1; j < biathletes.length; j++) {
-      if (biathletes[i].name.value == biathletes[j].name.value) {
-        errorText.value = `${i + 1} місце та ${j + 1} місце мають однакового біатлоніста!`;
-        output.value = "";
-        return;
-      }
+  for (const biathlete of biathletes) {
+    if (!biathlete.name.value) {
+      if (isRelayRaceSelected)
+        return `Країни для ${biathlete.placeNumber} місця не було вибрано!`;
+      else
+        return `Біатлоніста для ${biathlete.placeNumber} місця не було вибрано!`;
     }
   }
 
-  // Різні відмінювання слова
-  if (
-    gender.value == "men" &&
-    (race.value == "sprint" ||
-      race.value == "masstart" ||
-      race.value == "masstart60")
-  ) {
-    modifiedGender = "чоловічого";
-  } else if (
-    gender.value == "men" &&
-    (race.value == "pursuit" ||
-      race.value == "individual" ||
-      race.value == "short" ||
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single")
-  ) {
-    modifiedGender = "чоловічої";
-  } else if (
-    gender.value == "women" &&
-    (race.value == "sprint" ||
-      race.value == "masstart" ||
-      race.value == "masstart60")
-  ) {
-    modifiedGender = "жіночого";
-  } else if (
-    gender.value == "women" &&
-    (race.value == "pursuit" ||
-      race.value == "individual" ||
-      race.value == "short" ||
-      race.value == "classic" ||
-      race.value == "mixed" ||
-      race.value == "single")
-  ) {
-    modifiedGender = "жіночої";
+  const seenNames = new Map();
+
+  for (const [index, biathlete] of biathletes.entries()) {
+    const name = biathlete.name.value;
+
+    if (seenNames.has(name)) {
+      const firstPlace = seenNames.get(name) + 1;
+      return `${firstPlace} місце та ${index + 1} місце мають однакового біатлоніста!`;
+    }
+
+    seenNames.set(name, index);
   }
 
-  switch (race.value) {
-    case "sprint":
-      modifiedRace = "спринту";
-      break;
-    case "pursuit":
-      modifiedRace = "гонки переслідування";
-      break;
-    case "individual":
-      modifiedRace = "індивідуальної гонки";
-      break;
-    case "short":
-      modifiedRace = "короткої індивідуальної гонки";
-      break;
-    case "masstart":
-      modifiedRace = "масстарту";
-      break;
-    case "masstart60":
-      modifiedRace = "масстарту-60";
-      break;
-    case "classic":
-      modifiedRace = "класичної естафети";
-      break;
-    case "mixed":
-      modifiedRace = "змішаної естафети";
-      break;
-    case "single":
-      modifiedRace = "одиночної змішаної естафети";
-      break;
-    default:
-      break;
+  const times = getTimes();
+  if (times[0] === "0.0") {
+    return "Переможний час для 1 місця не було встановлено!";
   }
 
-  if (
-    race.value == "classic" ||
-    race.value == "mixed" ||
-    race.value == "single"
-  ) {
-    output.value =
-      "🏆 " +
-      selectedCompetition +
-      ", " +
-      selectedVenue.number +
-      "-й етап 🏆\n" +
-      selectedVenue.flag +
-      " " +
-      selectedVenue.stadium +
-      ", " +
-      selectedVenue.country +
-      " " +
-      selectedVenue.flag +
-      "\nРезультати " +
-      modifiedGender +
-      " " +
-      modifiedRace +
-      "\n\n1. " +
-      selectedTop[0].flag +
-      " " +
-      selectedTop[0].country +
-      " (" +
-      shootings[0] +
-      ") " +
-      times[0] +
-      "\n2. " +
-      selectedTop[1].flag +
-      " " +
-      selectedTop[1].country +
-      " (" +
-      shootings[1] +
-      ") +" +
-      times[1] +
-      "\n3. " +
-      selectedTop[2].flag +
-      " " +
-      selectedTop[2].country +
-      " (" +
-      shootings[2] +
-      ") +" +
-      times[2] +
-      "\n4. " +
-      selectedTop[3].flag +
-      " " +
-      selectedTop[3].country +
-      " (" +
-      shootings[3] +
-      ") +" +
-      times[3] +
-      "\n5. " +
-      selectedTop[4].flag +
-      " " +
-      selectedTop[4].country +
-      " (" +
-      shootings[4] +
-      ") +" +
-      times[4] +
-      "\n6. " +
-      selectedTop[5].flag +
-      " " +
-      selectedTop[5].country +
-      " (" +
-      shootings[5] +
-      ") +" +
-      times[5];
-  } else {
-    output.value =
-      "🏆 " +
-      selectedCompetition +
-      ", " +
-      selectedVenue.number +
-      "-й етап 🏆\n" +
-      selectedVenue.flag +
-      " " +
-      selectedVenue.stadium +
-      ", " +
-      selectedVenue.country +
-      " " +
-      selectedVenue.flag +
-      "\nРезультати " +
-      modifiedGender +
-      " " +
-      modifiedRace +
-      "\n\n1. " +
-      selectedTop[0].flag +
-      " " +
-      selectedTop[0].name +
-      " (" +
-      shootings[0] +
-      ") " +
-      times[0] +
-      "\n2. " +
-      selectedTop[1].flag +
-      " " +
-      selectedTop[1].name +
-      " (" +
-      shootings[1] +
-      ") +" +
-      times[1] +
-      "\n3. " +
-      selectedTop[2].flag +
-      " " +
-      selectedTop[2].name +
-      " (" +
-      shootings[2] +
-      ") +" +
-      times[2] +
-      "\n4. " +
-      selectedTop[3].flag +
-      " " +
-      selectedTop[3].name +
-      " (" +
-      shootings[3] +
-      ") +" +
-      times[3] +
-      "\n5. " +
-      selectedTop[4].flag +
-      " " +
-      selectedTop[4].name +
-      " (" +
-      shootings[4] +
-      ") +" +
-      times[4] +
-      "\n6. " +
-      selectedTop[5].flag +
-      " " +
-      selectedTop[5].name +
-      " (" +
-      shootings[5] +
-      ") +" +
-      times[5];
+  return null;
+}
+
+function getGenderLabel() {
+  const masculineRaces = ["sprint", "masstart", "masstart60"];
+
+  if (gender.value === "men") {
+    return masculineRaces.includes(race.value) ? "чоловічого" : "чоловічої";
   }
+
+  if (gender.value === "women") {
+    return masculineRaces.includes(race.value) ? "жіночого" : "жіночої";
+  }
+
+  return "";
+}
+
+function getRaceLabel() {
+  const labels = {
+    sprint: "спринту",
+    pursuit: "гонки переслідування",
+    individual: "індивідуальної гонки",
+    short: "короткої індивідуальної гонки",
+    masstart: "масстарту",
+    masstart60: "масстарту-60",
+    classic: "класичної естафети",
+    mixed: "змішаної естафети",
+    single: "одиночної змішаної естафети",
+  };
+
+  return labels[race.value];
+}
+
+function getResultName(biathlete) {
+  return isRelayRaceSelected()
+    ? biathlete.country
+    : biathlete.name;
+}
+
+function buildResultRow(position, biathlete, shooting, time) {
+  return `${position}. ${biathlete.flag} ${getResultName(biathlete)} (${shooting}) ${time}`;
+}
+
+function generateText() {
+  const state = getReportState();
+  const error = validateReportState(state);
+
+  if (error) {
+    errorText.value = error;
+    output.value = "";
+    return;
+  }
+
+  const selectedCompetition = competition.options[competition.selectedIndex].text;
+  const selectedVenue = populatedVenues.find(
+    (item) => String(item.number) === venue.value,
+  );
+
+  const modifiedGender = getGenderLabel();
+  const modifiedRace = getRaceLabel();
+  const selectedTop = getSelectedTop();
+  const shootings = getShootings();
+  const times = getTimes();
+
+  const rows = selectedTop
+    .map((biathlete, index) => {
+      if (!biathlete) return null;
+      return buildResultRow(index + 1, biathlete, shootings[index], times[index]);
+    })
+    .filter(Boolean);
+
+  errorText.value = "";
+  
+  output.value = 
+    "🏆 " + selectedCompetition + ", " +
+    selectedVenue.number + "-й етап 🏆\n" +
+    selectedVenue.flag + " " +
+    selectedVenue.stadium + ", " +
+    selectedVenue.country + " " +
+    selectedVenue.flag + "\nРезультати " +
+    modifiedGender + " " +
+    modifiedRace + "\n\n" +
+    rows.join("\n");
 }
 
 competition.addEventListener("change", populateVenues);
 gender.addEventListener("change", () => {
+  // Reset immediately if no gender was selected
   const shouldResetSelection =
     previousGender === "" ? true :
     !isRelayRaceSelected() && previousGender !== gender.value;
+    // resets only when the race isn't a relay but gender changed
 
   if (shouldResetSelection) {
     clearAthleteRows();
