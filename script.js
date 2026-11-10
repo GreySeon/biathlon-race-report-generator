@@ -29,10 +29,6 @@ const button = document.getElementById("generate");
 const errorText = document.getElementById("error_text");
 
 // Race helpers
-function isRelayRaceSelected() {
-  return isRelayRaceValue(race.value);
-}
-
 function isRelayRaceValue(value) {
   return (
     value === "classic" ||
@@ -53,13 +49,9 @@ function clearAthleteRows() {
   }
 }
 
-function isWinnerHourRace() {
-  return race.value === "classic" || race.value === "mixed";
-}
-
 // Shooting helpers
 function getShootingRules() {
-  if (isRelayRaceSelected()) {
+  if (isRelayRaceValue(race.value)) {
     return {
       maxLength: 2,
       maxValue: 24,
@@ -84,7 +76,7 @@ function changeShootingFormat(input) {
     value = value.slice(0, -1);
   }
 
-  if (!isRelayRaceSelected()) {
+  if (!isRelayRaceValue(race.value)) {
     value = value.replace(/[6-9]/g, "").slice(0, 1);
   }
 
@@ -94,7 +86,7 @@ function changeShootingFormat(input) {
 function disableShooting() {
   for (const biathlete of biathletes) {
     const shouldDisableLastShots =
-      isRelayRaceSelected() || race.value === "sprint";
+      isRelayRaceValue(race.value) || race.value === "sprint";
     biathlete.shooting[2].disabled = shouldDisableLastShots;
     biathlete.shooting[3].disabled = shouldDisableLastShots;
   }
@@ -120,22 +112,30 @@ function getTimeParts(biathlete) {
   };
 }
 
+function isWinnerHourRace() {
+  return race.value === "classic" || race.value === "mixed";
+}
+
 function formatTime(biathlete) {
   const { minutes, seconds, tenths } = getTimeParts(biathlete);
 
   if (minutes === 0 && seconds === 0 && tenths === 0) {
-    return "0.0";
+    return "+0.0";
   }
 
   if (minutes === 0) {
-    return `${seconds}.${tenths}`;
+    return `+${seconds}.${tenths}`;
   }
 
   if (isWinnerHourRace() && biathlete == biathletes[0]) {
     return `1:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
   }
 
-  return `${minutes}:${String(seconds).padStart(2, "0")}.${tenths}`;
+  if (biathlete == biathletes[0]) {
+    return `${minutes}:${String(seconds).padStart(2, "0")}.${tenths}`;
+  }
+
+  return `+${minutes}:${String(seconds).padStart(2, "0")}.${tenths}`;
 }
 
 
@@ -192,7 +192,7 @@ async function loadBiathleteData() {
 async function populateBiathletes() {
   const athleteData = await loadBiathleteData();
 
-  const sourceData = isRelayRaceSelected()
+  const sourceData = isRelayRaceValue(race.value)
     ? athleteData.countries
     : gender.value === "men"
       ? athleteData.men
@@ -205,7 +205,7 @@ async function populateBiathletes() {
     biathlete.name.value = "";
 
     const options = sourceData.map((item) => {
-      const value = isRelayRaceSelected() ? item.country : item.name;
+      const value = isRelayRaceValue(race.value) ? item.country : item.name;
       const label = item.flag;
 
       const option = document.createElement("option");
@@ -218,6 +218,7 @@ async function populateBiathletes() {
   }
 }
 
+// Gives the code one clean source of truth for the current state
 function getReportState() {
   return {
     competition: competition.value,
@@ -235,15 +236,15 @@ function getReportState() {
 function getSelectedTop() {
   const selectedTop = [];
 
-  for (let i = 0; i < 6; i++) {
-    if (isRelayRaceSelected()) {
-      selectedTop[i] = populatedBiathletes.find(
-        (team) => team.country === biathletes[i].name.value,
-      );
+  for (const biathlete of biathletes) {
+    if (isRelayRaceValue(race.value)) {
+      selectedTop.push(populatedBiathletes.find(
+        (team) => team.country === biathlete.name.value,
+      ));
     } else {
-      selectedTop[i] = populatedBiathletes.find(
-        (athlete) => athlete.name === biathletes[i].name.value,
-      );
+      selectedTop.push(populatedBiathletes.find(
+        (athlete) => athlete.name === biathlete.name.value,
+      ));
     }
   }
 
@@ -253,14 +254,14 @@ function getSelectedTop() {
 function getShootings() {
   const shootings = [];
 
-  for (let i = 0; i < 6; i++) {
-    if (race.value == "sprint" || isRelayRaceSelected()) {
-      shootings[i] =
-        biathletes[i].shooting[0].value + "+" + biathletes[i].shooting[1].value;
+  for (const biathlete of biathletes) {
+    if (race.value == "sprint" || isRelayRaceValue(race.value)) {
+      shootings.push(biathlete.shooting[0].value + 
+        "+" + biathlete.shooting[1].value);
     } else {
-      shootings[i] = biathletes[i].shooting
+      shootings.push(biathlete.shooting
         .map((input) => input.value)
-        .join("+");
+        .join("+"));
     }
   }
 
@@ -285,7 +286,7 @@ function validateReportState(state) {
 
   for (const biathlete of biathletes) {
     if (!biathlete.name.value) {
-      if (isRelayRaceSelected)
+      if (isRelayRaceValue(race.value))
         return `Країни для ${biathlete.placeNumber} місця не було вибрано!`;
       else
         return `Біатлоніста для ${biathlete.placeNumber} місця не було вибрано!`;
@@ -305,9 +306,8 @@ function validateReportState(state) {
     seenNames.set(name, index);
   }
 
-  const times = getTimes();
-  if (times[0] === "0.0") {
-    return "Переможний час для 1 місця не було встановлено!";
+  if (getTimeParts(biathletes[0]).minutes === 0) {
+    return "Некоректний переможний час для 1 місця!";
   }
 
   return null;
@@ -344,7 +344,7 @@ function getRaceLabel() {
 }
 
 function getResultName(biathlete) {
-  return isRelayRaceSelected()
+  return isRelayRaceValue(race.value)
     ? biathlete.country
     : biathlete.name;
 }
@@ -400,7 +400,7 @@ gender.addEventListener("change", () => {
   // Reset immediately if no gender was selected
   const shouldResetSelection =
     previousGender === "" ? true :
-    !isRelayRaceSelected() && previousGender !== gender.value;
+    !isRelayRaceValue(race.value) && previousGender !== gender.value;
     // resets only when the race isn't a relay but gender changed
 
   if (shouldResetSelection) {
