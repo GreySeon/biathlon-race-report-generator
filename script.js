@@ -25,8 +25,10 @@ const biathletes = [
 let populatedBiathletes = [];
 const winnerTimeLabel = document.getElementById("winner_time_label");
 
-const button = document.getElementById("generate");
-const errorText = document.getElementById("error_text");
+const addRowsButton = document.getElementById("add_rows");
+const deleteRowsButton = document.getElementById("delete_rows");
+
+const generateTextButton = document.getElementById("generate_text");
 
 // Race helpers
 function isRelayRaceValue(value) {
@@ -280,16 +282,26 @@ function getTimes() {
 
 // Error handling
 function validateReportState(state) {
-  if (!competition.value) return "Змагання не було вибрано!";
-  if (!gender.value) return "Гендер не було вибрано!";
-  if (!race.value) return "Гонку не було вибрано!";
+  if (!competition.value) {
+    alert("Змагання не було вибрано!"); 
+    return 1;
+  } else if (!gender.value) {
+    alert("Гендер не було вибрано!"); 
+    return 1;
+  } else if (!race.value) {
+    alert("Гонку не було вибрано!"); 
+    return 1;
+  }
 
   for (const biathlete of biathletes) {
     if (!biathlete.name.value) {
-      if (isRelayRaceValue(race.value))
-        return `Країни для ${biathlete.placeNumber} місця не було вибрано!`;
-      else
-        return `Біатлоніста для ${biathlete.placeNumber} місця не було вибрано!`;
+      if (isRelayRaceValue(race.value)) {
+        alert(`Країни для ${biathlete.placeNumber} місця не було вибрано!`);
+        return 1;
+      } else {
+        alert(`Біатлоніста для ${biathlete.placeNumber} місця не було вибрано!`);
+        return 1;
+      }
     }
   }
 
@@ -300,17 +312,19 @@ function validateReportState(state) {
 
     if (seenNames.has(name)) {
       const firstPlace = seenNames.get(name) + 1;
-      return `${firstPlace} місце та ${index + 1} місце мають однакового біатлоніста!`;
+      alert(`${firstPlace} місце та ${index + 1} місце мають однакового біатлоніста!`);
+      return 1;
     }
 
     seenNames.set(name, index);
   }
 
   if (getTimeParts(biathletes[0]).minutes === 0) {
-    return "Некоректний переможний час для 1 місця!";
+    alert("Некоректний переможний час для 1 місця!");
+    return 1;
   }
 
-  return null;
+  return 0;
 }
 
 function getGenderLabel() {
@@ -355,10 +369,9 @@ function buildResultRow(position, biathlete, shooting, time) {
 
 function generateText() {
   const state = getReportState();
-  const error = validateReportState(state);
+  let error = validateReportState(state);
 
-  if (error) {
-    errorText.value = error;
+  if (error === 1) {
     output.value = "";
     return;
   }
@@ -380,8 +393,6 @@ function generateText() {
       return buildResultRow(index + 1, biathlete, shootings[index], times[index]);
     })
     .filter(Boolean);
-
-  errorText.value = "";
   
   output.value = 
     "🏆 " + selectedCompetition + ", " +
@@ -431,4 +442,10 @@ race.addEventListener("change", () => {
 });
 bindAthleteInputHandlers();
 
-button.addEventListener("click", generateText);
+addRowsButton.addEventListener("click", () => {
+  const nextPlace = biathletes.length + 1;
+  const row = new AthleteResultRow(nextPlace, "dynamic");
+  biathletes.push(row);
+});
+
+generateTextButton.addEventListener("click", generateText);
