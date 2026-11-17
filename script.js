@@ -14,7 +14,7 @@ let previousGender = "";
 const race = document.getElementById("race");
 let previousRaceValue = "";
 // Biathletes
-const biathletes = [
+let biathletes = [
   AthleteResultRow.fromExisting(1),
   AthleteResultRow.fromExisting(2),
   AthleteResultRow.fromExisting(3),
@@ -49,6 +49,22 @@ function clearAthleteRows() {
     athlete.list.replaceChildren();
     athlete.name.value = "";
   }
+}
+
+// Delete dynamically generated rows
+function removeAthleteRow(row) {
+  row.row.remove();
+
+  const index = biathletes.indexOf(row);
+  if (index !== -1) {
+    biathletes.splice(index, 1);
+  }
+}
+
+function validatePlaceInput(input) {
+  let value = input.value.replace(/\D/g, "");
+  value = value.slice(0, 3);
+  input.value = value;
 }
 
 // Shooting helpers
@@ -142,12 +158,16 @@ function formatTime(biathlete) {
 
 
 function bindAthleteInputHandlers() {
-  for (const athlete of biathletes) {
-    for (const input of athlete.shooting) {
+  for (const biathlete of biathletes) {
+    if (biathlete.athleteNumber >= 7) {
+      biathlete.placeNumber.addEventListener("input", () => validatePlaceInput(biathlete.placeNumber));
+    }
+
+    for (const input of biathlete.shooting) {
       input.addEventListener("input", () => changeShootingFormat(input));
     }
 
-    for (const input of athlete.time) {
+    for (const input of biathlete.time) {
       input.addEventListener("input", (event) => {
         const value = event.currentTarget.value.replace(/\D/g, "").slice(0, 2);
         event.currentTarget.value =
@@ -191,20 +211,27 @@ async function loadBiathleteData() {
   return { men, women, countries };
 }
 
-async function populateBiathletes() {
+async function populateBiathletes(generated) {
   const athleteData = await loadBiathleteData();
+  let sourceData;
 
-  const sourceData = isRelayRaceValue(race.value)
-    ? athleteData.countries
-    : gender.value === "men"
-      ? athleteData.men
-      : athleteData.women;
+  if (isRelayRaceValue(race.value)) {
+    sourceData = athleteData.countries;
+  } else if (gender.value === "men") {
+    sourceData = athleteData.men;
+  } else if (gender.value === "women") {
+    sourceData = athleteData.women;
+  } else {
+    return;
+  }
 
   populatedBiathletes = sourceData;
 
   for (const biathlete of biathletes) {
-    biathlete.list.replaceChildren(); // Clear previous options
-    biathlete.name.value = "";
+    if (!generated) {
+      biathlete.list.replaceChildren(); // Clear previous options
+      biathlete.name.value = "";
+    }
 
     const options = sourceData.map((item) => {
       const value = isRelayRaceValue(race.value) ? item.country : item.name;
@@ -387,10 +414,13 @@ function generateText() {
   const shootings = getShootings();
   const times = getTimes();
 
-  const rows = selectedTop
-    .map((biathlete, index) => {
+  const rows = biathletes
+    .map((row, index) => {
+      const biathlete = selectedTop[index];
       if (!biathlete) return null;
-      return buildResultRow(index + 1, biathlete, shootings[index], times[index]);
+
+      const position = Number(row.placeNumber.value) || index + 1;
+      return buildResultRow(position, biathlete, shootings[index], times[index]);
     })
     .filter(Boolean);
   
@@ -444,8 +474,10 @@ bindAthleteInputHandlers();
 
 addRowsButton.addEventListener("click", () => {
   const nextPlace = biathletes.length + 1;
-  const row = new AthleteResultRow(nextPlace, "dynamic");
-  biathletes.push(row);
+  biathletes.push(AthleteResultRow.createDynamic(nextPlace));
+  console.log(biathletes);
+  bindAthleteInputHandlers();
+  populateBiathletes(true);
 });
 
 generateTextButton.addEventListener("click", generateText);

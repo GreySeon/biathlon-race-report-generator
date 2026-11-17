@@ -38,7 +38,7 @@ class AthleteResultRow {
 
   // For dynamic generation of new fields
   createNewFields() {
-    const row = document.createElement("p");
+    this.row = document.createElement("p");
 
     const placeInput = document.createElement("input");
     placeInput.type = "text";
@@ -87,13 +87,17 @@ class AthleteResultRow {
       timeInputs.push(input);
     });
 
-    const button = document.createElement("button");
-    button.id = `delete_rows_${this.athleteNumber}`;
-    button.type = "button";
-    button.textContent = "Видалити рядок";
+    this.deleteButton = document.createElement("button");
+    this.deleteButton.id = `delete_rows_${this.athleteNumber}`;
+    this.deleteButton.type = "button";
+    this.deleteButton.textContent = "Видалити рядок";
 
-    row.append(placeInput, label, athleteInput, datalist, ...shootingInputs, ...timeInputs, button);
-    document.body.appendChild(row);
+    this.deleteButton.addEventListener("click", () => {
+      this.deleteCreatedRow();
+    });
+
+    this.row.append(placeInput, label, athleteInput, datalist, ...shootingInputs, ...timeInputs, this.deleteButton);
+    document.body.appendChild(this.row);
 
     this.placeNumber = placeInput;
     this.name = athleteInput;
@@ -103,7 +107,6 @@ class AthleteResultRow {
   }
 
   deleteCreatedRow() {
-
-
+    removeAthleteRow(this);
   }
 }
