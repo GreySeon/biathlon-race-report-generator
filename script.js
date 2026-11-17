@@ -228,8 +228,9 @@ async function populateBiathletes(generated) {
   populatedBiathletes = sourceData;
 
   for (const biathlete of biathletes) {
+    biathlete.list.replaceChildren(); // Clear previous options
+
     if (!generated) {
-      biathlete.list.replaceChildren(); // Clear previous options
       biathlete.name.value = "";
     }
 
@@ -307,6 +308,15 @@ function getTimes() {
   return times;
 }
 
+// Helper function to obtain finishing place of a biathlete
+function getPlaceNumber(biathlete) {
+  if (typeof biathlete.placeNumber === "number") {
+    return biathlete.placeNumber;
+  }
+
+  return biathlete.placeNumber.value;
+}
+
 // Error handling
 function validateReportState(state) {
   if (!competition.value) {
@@ -320,30 +330,45 @@ function validateReportState(state) {
     return 1;
   }
 
+  const seenNames = new Map();
+
   for (const biathlete of biathletes) {
-    if (!biathlete.name.value) {
+    const place = getPlaceNumber(biathlete);
+    const name = biathlete.name.value;
+
+    if (biathlete.placeNumber.value == 0) {
       if (isRelayRaceValue(race.value)) {
-        alert(`Країни для ${biathlete.placeNumber} місця не було вибрано!`);
+        alert(`Місця для країни не було вибрано!`);
         return 1;
       } else {
-        alert(`Біатлоніста для ${biathlete.placeNumber} місця не було вибрано!`);
+        alert(`Місця для біатлоніста не було вибрано!`);
         return 1;
       }
     }
-  }
 
-  const seenNames = new Map();
-
-  for (const [index, biathlete] of biathletes.entries()) {
-    const name = biathlete.name.value;
-
-    if (seenNames.has(name)) {
-      const firstPlace = seenNames.get(name) + 1;
-      alert(`${firstPlace} місце та ${index + 1} місце мають однакового біатлоніста!`);
-      return 1;
+    if (!biathlete.name.value) {
+      if (isRelayRaceValue(race.value)) {
+        alert(`Країни для ${place} місця не було вибрано!`);
+        return 1;
+      } else {
+        alert(`Біатлоніста для ${place} місця не було вибрано!`);
+        return 1;
+      }
     }
 
-    seenNames.set(name, index);
+    if (seenNames.has(name)) {
+      const firstPlace = seenNames.get(name);
+      
+      if (isRelayRaceValue(race.value)) {
+        alert(`${firstPlace} місце та ${place} місце мають однакову країну!`);
+        return 1;
+      } else {
+        alert(`${firstPlace} місце та ${place} місце мають однакового біатлоніста!`);
+        return 1;
+      }
+    }
+
+    seenNames.set(name, place);
   }
 
   if (getTimeParts(biathletes[0]).minutes === 0) {
@@ -475,7 +500,6 @@ bindAthleteInputHandlers();
 addRowsButton.addEventListener("click", () => {
   const nextPlace = biathletes.length + 1;
   biathletes.push(AthleteResultRow.createDynamic(nextPlace));
-  console.log(biathletes);
   bindAthleteInputHandlers();
   populateBiathletes(true);
 });
