@@ -30,6 +30,8 @@ const deleteRowsButton = document.getElementById("delete_rows");
 
 const generateTextButton = document.getElementById("generate_text");
 
+const codes = [222, 333, 444]; // DNS, DNF, LAP
+
 // Race helpers
 function isRelayRaceValue(value) {
   return (
@@ -285,13 +287,16 @@ function getShootings() {
   const shootings = [];
 
   for (const biathlete of biathletes) {
-    if (race.value == "sprint" || isRelayRaceValue(race.value)) {
-      shootings.push(biathlete.shooting[0].value + 
-        "+" + biathlete.shooting[1].value);
+    if (codes.includes(Number(getPlaceNumber(biathlete)))) {
+      shootings.push("");
+    } else if (race.value == "sprint" || isRelayRaceValue(race.value)) {
+      shootings.push("(" + biathlete.shooting[0].value + 
+        "+" + biathlete.shooting[1].value + ")");
     } else {
-      shootings.push(biathlete.shooting
-        .map((input) => input.value)
-        .join("+"));
+      shootings.push("(" + biathlete.shooting[0].value + 
+        "+" + biathlete.shooting[1].value +
+        "+" + biathlete.shooting[2].value +
+        "+" + biathlete.shooting[3].value + ")");
     }
   }
 
@@ -302,7 +307,11 @@ function getTimes() {
   const times = [];
 
   for (const biathlete of biathletes) {
-    times.push(formatTime(biathlete));
+    if (codes.includes(Number(getPlaceNumber(biathlete)))) {
+      times.push("");
+    } else {
+      times.push(formatTime(biathlete));
+    }
   }
 
   return times;
@@ -331,44 +340,54 @@ function validateReportState(state) {
   }
 
   const seenNames = new Map();
+  const seenPlaces = new Map();
 
   for (const biathlete of biathletes) {
-    const place = getPlaceNumber(biathlete);
+    const place = Number(getPlaceNumber(biathlete));
     const name = biathlete.name.value;
 
-    if (biathlete.placeNumber.value == 0) {
-      if (isRelayRaceValue(race.value)) {
-        alert(`Місця для країни не було вибрано!`);
-        return 1;
-      } else {
-        alert(`Місця для біатлоніста не було вибрано!`);
-        return 1;
-      }
+    if (!place) {
+      alert(
+        isRelayRaceValue(race.value)
+          ? "Місця для країни не було вибрано!"
+          : "Місця для біатлоніста не було вибрано!",
+      );
+      return 1;
     }
 
-    if (!biathlete.name.value) {
-      if (isRelayRaceValue(race.value)) {
-        alert(`Країни для ${place} місця не було вибрано!`);
-        return 1;
-      } else {
-        alert(`Біатлоніста для ${place} місця не було вибрано!`);
-        return 1;
-      }
+    if (seenPlaces.has(place)) {
+      const duplicateName = seenPlaces.get(place);
+
+      alert(
+        isRelayRaceValue(race.value)
+          ? `${place} місце використано двічі: для ${duplicateName} та ${name}!`
+          : `${place} місце використано двічі: для ${duplicateName} та ${name}!`,
+      );
+      return 1;
+    }
+
+    if (!name) {
+      alert(
+        isRelayRaceValue(race.value)
+          ? `Країни для ${place} місця не було вибрано!`
+          : `Біатлоніста для ${place} місця не було вибрано!`,
+      );
+      return 1;
     }
 
     if (seenNames.has(name)) {
       const firstPlace = seenNames.get(name);
       
-      if (isRelayRaceValue(race.value)) {
-        alert(`${firstPlace} місце та ${place} місце мають однакову країну!`);
-        return 1;
-      } else {
-        alert(`${firstPlace} місце та ${place} місце мають однакового біатлоніста!`);
-        return 1;
-      }
+      alert(
+        isRelayRaceValue(race.value)
+          ? `${firstPlace} місце та ${place} місце мають одну країну!`
+          : `${firstPlace} місце та ${place} місце мають одного біатлоніста!`,
+      );
+      return 1;
     }
 
     seenNames.set(name, place);
+    seenPlaces.set(place, name);
   }
 
   if (getTimeParts(biathletes[0]).minutes === 0) {
@@ -415,8 +434,17 @@ function getResultName(biathlete) {
     : biathlete.name;
 }
 
+function hasFinished(row) {
+  const place = Number(getPlaceNumber(row));
+
+  if (place === 222) return "DNS";
+  if (place === 333) return "DNF";
+  if (place === 444) return "LAP";
+  return "finished";
+}
+
 function buildResultRow(position, biathlete, shooting, time) {
-  return `${position}. ${biathlete.flag} ${getResultName(biathlete)} (${shooting}) ${time}`;
+  return `${position}. ${biathlete.flag} ${getResultName(biathlete)} ${shooting} ${time}`;
 }
 
 function generateText() {
@@ -439,26 +467,48 @@ function generateText() {
   const shootings = getShootings();
   const times = getTimes();
 
-  const rows = biathletes
-    .map((row, index) => {
-      const biathlete = selectedTop[index];
-      if (!biathlete) return null;
+  const topRows = [];
+  const dynamicRows = [];
 
-      const position = Number(row.placeNumber.value) || index + 1;
-      return buildResultRow(position, biathlete, shootings[index], times[index]);
-    })
-    .filter(Boolean);
+  biathletes.forEach((row, index) => {
+    const biathlete = selectedTop[index];
+    if (!biathlete) return;
+
+    const status = hasFinished(row);
+    const position =
+      status === "finished"
+        ? getPlaceNumber(row) || index + 1
+        : status;
+
+    const result = buildResultRow(
+      position,
+      biathlete,
+      shootings[index],
+      times[index],
+    );
+
+    if (row.mode === "dynamic") {
+      dynamicRows.push(result);
+    } else {
+      topRows.push(result);
+    }
+  });
+
+  const rows = dynamicRows.length
+    ? `${topRows.join("\n")}\n...\n${dynamicRows.join("\n")}`
+    : topRows.join("\n");
   
   output.value = 
-    "🏆 " + selectedCompetition + ", " +
-    selectedVenue.number + "-й етап 🏆\n" +
-    selectedVenue.flag + " " +
+    "🏆" + selectedVenue.flag + " " + 
+    selectedCompetition + ", " +
+    selectedVenue.number + "-й етап " + 
+    selectedVenue.flag + "🏆\n" +
     selectedVenue.stadium + ", " +
     selectedVenue.country + " " +
-    selectedVenue.flag + "\nРезультати " +
+    "\nРезультати " +
     modifiedGender + " " +
     modifiedRace + "\n\n" +
-    rows.join("\n");
+    rows;
 }
 
 competition.addEventListener("change", populateVenues);
