@@ -72,19 +72,24 @@ class AthleteResultRow {
     }
 
     const timeInputs = [];
-    ["min", "sec", "ms"].forEach((part) => {
-      const label = document.createElement("label");
-      label.setAttribute("for", `place_${this.athleteNumber}_time_${part}`);
-      label.textContent = part === "min" ? " + " : part === "sec" ? " : " : " . ";
-      timeInputs.push(label);
+    const timeElements = [];
 
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = `place_${this.athleteNumber}_time_${part}`;
-      input.placeholder = "0";
-      input.size = 1;
-      input.maxLength = part === "ms" ? 1 : 2;
-      timeInputs.push(input);
+    ["min", "sec", "ms"].forEach((part) => {
+        const label = document.createElement("label");
+        label.setAttribute("for", `place_${this.athleteNumber}_time_${part}`);
+        label.textContent =
+            part === "min" ? " + " : part === "sec" ? " : " : " . ";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "numeric";
+        input.id = `place_${this.athleteNumber}_time_${part}`;
+        input.placeholder = "0";
+        input.size = 1;
+        input.maxLength = part === "ms" ? 1 : 2;
+
+        timeElements.push(label, input);
+        timeInputs.push(input);
     });
 
     this.deleteButton = document.createElement("button");
@@ -96,8 +101,9 @@ class AthleteResultRow {
       this.deleteCreatedRow();
     });
 
-    this.row.append(placeInput, label, athleteInput, datalist, ...shootingInputs, ...timeInputs, this.deleteButton);
-    document.body.appendChild(this.row);
+    this.row.append(placeInput, label, athleteInput, datalist, ...shootingInputs, ...timeElements, this.deleteButton);
+    const dynamicContainer = document.getElementById("dynamic");
+    dynamicContainer.appendChild(this.row);
 
     this.placeNumber = placeInput;
     this.name = athleteInput;

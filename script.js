@@ -26,7 +26,8 @@ let populatedBiathletes = [];
 const winnerTimeLabel = document.getElementById("winner_time_label");
 
 const addRowsButton = document.getElementById("add_rows");
-const deleteRowsButton = document.getElementById("delete_rows");
+
+const description = document.getElementById("description");
 
 const generateTextButton = document.getElementById("generate_text");
 
@@ -467,6 +468,10 @@ function generateText() {
   const shootings = getShootings();
   const times = getTimes();
 
+  const descriptionText = description.value === ""
+                          ? "\n\n"
+                          : "\n\n" + description.value + "\n\n";
+
   const topRows = [];
   const dynamicRows = [];
 
@@ -508,7 +513,8 @@ function generateText() {
     "\nРезультати " +
     modifiedGender + " " +
     modifiedRace + "\n\n" +
-    rows;
+    rows +
+    descriptionText;
 }
 
 competition.addEventListener("change", populateVenues);
