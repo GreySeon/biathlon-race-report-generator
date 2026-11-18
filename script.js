@@ -29,7 +29,10 @@ const addRowsButton = document.getElementById("add_rows");
 
 const description = document.getElementById("description");
 
+const output = document.getElementById("output");
+
 const generateTextButton = document.getElementById("generate_text");
+const copyTextButton = document.getElementById("copy_text");
 
 const codes = [222, 333, 444]; // DNS, DNF, LAP
 
@@ -470,7 +473,7 @@ function generateText() {
 
   const descriptionText = description.value === ""
                           ? "\n\n"
-                          : "\n\n" + description.value + "\n\n";
+                          : "\n\n" + description.value;
 
   const topRows = [];
   const dynamicRows = [];
@@ -517,6 +520,39 @@ function generateText() {
     descriptionText;
 }
 
+function copyText() {
+  if (!output) return;
+
+  if (output.value === "") {
+    alert("Неможливо скопіювати пустий текст!");
+    return;
+  }
+
+  const text = output.value;
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Скопійовано!");
+    }).catch(() => {
+      if (copyTextWithSelection(output)) {
+        alert("Скопійовано!");
+      }
+    });
+    return;
+  }
+
+  if (copyTextWithSelection(output)) {
+    alert("Скопійовано!");
+  }
+}
+
+function copyTextWithSelection(output) {
+  output.focus();
+  output.select();
+  output.setSelectionRange(0, output.value.length);
+  return document.execCommand("copy");
+}
+
 competition.addEventListener("change", populateVenues);
 gender.addEventListener("change", () => {
   // Reset immediately if no gender was selected
@@ -561,3 +597,4 @@ addRowsButton.addEventListener("click", () => {
 });
 
 generateTextButton.addEventListener("click", generateText);
+copyTextButton.addEventListener("click", copyText);
